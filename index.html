@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>64 Bits or Less!</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤏</text></svg>">
+        <style>
+            body{
+                font-family: 'Courier New', Courier, monospace;
+            }
+           article{
+                height: 100%;
+                min-height: 100%;
+                max-width: 960px;
+                margin-left: auto;
+                margin-right: auto;
+                display: grid;
+                grid-template-areas:
+                    'header header '
+                    'console console'
+                    'editor editor'
+                    'footer footer';
+                grid-template-columns: 2fr 2fr;
+                grid-template-rows: 6em 1fr auto 2em;
+           }
+           section{
+                overflow: auto;
+           }
+           .header{
+                padding-left: 1em;
+                grid-area: header;
+                p {
+                    margin-top: 0px;
+                    margin-bottom: 0px;
+                }
+                h2{
+                    margin-bottom: .2em;
+                }
+           }
+
+           .editor{
+                margin-left: 0;
+           }
+
+           .textentry{
+                margin-left: 0;
+                grid-area: editor;
+           }
+           .output{
+                grid-area: output;
+                background-color: grey;
+           }
+           .console{
+            grid-area: console;
+            border-top: 1px solid black;
+            display: flex;
+            flex-direction: right;
+            padding-left: 2px;
+            height: fit-content;
+           }
+
+           .console p{
+            flex-grow: 10;
+            display: inline-block;
+            margin-top: 0;
+            margin-bottom: 0;
+           }
+
+           #inputContainer{
+                overflow: hidden;
+           }
+           .cm-editor{
+            width: 100%;
+           }
+
+           
+           .bits{
+            border: 1px solid grey;
+            width: 100%;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+
+           .bit{
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            height: 2em;
+            border: 1px solid black;
+            text-align: center;
+           }
+
+        </style>
+    </head>
+
+    <body><article id="container">
+        <section class="header">
+            <h2>64 Bits or Less</h2>
+            <p>bit twiddling golf esolang</p>
+        </section>
+
+        <section class="console">
+            <div class="bits" id="bitcontainer">
+            </div>
+        </section>
+
+        <section id="textentry" class="textentry">
+            <div id="inputContainer"></div>
+            <p>text area</p>
+        </section>
+     
+        <section id ="preview" class="output">
+        </section>
+    <!-- <section class="footer">
+        <p>By <a href="http://hdyar.com" target="_blank"> Hunter Dyar</a>. <a href="https://github.com/hunterdyar/pinch" target="_blank">Source on GitHub</a>.</p>
+    </section> -->
+    </article>
+        <!-- <script src="ast.js"></script> -->
+        <script src="./page.ts" type="module"></script>
+    </body>
+</html>
