@@ -14,8 +14,9 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "64bitsorless": ".",
+    "codemirror": "^6.0.1",
     "fs": "^0.0.1-security",
-    "ohm-js": "^17.1.0",
-    "64bitsorless": "."
+    "ohm-js": "^17.1.0"
   }
 }

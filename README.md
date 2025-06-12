@@ -1,15 +1,12 @@
-# 64bitsorless
+# 64bitsofloving
+an esolang with 64 entire bits of memory for golf-style challenges.
 
-To install dependencies:
 
-```bash
-bun install
-```
+---
 
-To run:
+uses [bun](https://bun.sh/). 
+clone and cd into directory.
 
-```bash
-bun run index.ts
-```
+`bun install` to install dependencies (node_packages folder)
 
-This project was created using `bun init` in bun v1.2.5. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+`bun run index.hmtl` to run local dev.
