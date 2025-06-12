@@ -1,4 +1,4 @@
-const pnvGrammar = String.raw`
+export const bitsGrammar = String.raw`
 Bits {
 	Program
     = Statement*

@@ -3,21 +3,9 @@ import type { Interval } from "ohm-js";
 
 enum NodeType {
     Program,
-    ObjectStatement,
+    Assign,
     Number,
-    String,
-    RawJS,
     Identifier,
-    Label,
-    Push,
-    Pop,
-    Append,
-    Flow,
-    BodyStatement,
-    Transformation,
-    Procedure,
-    Block,
-    EnvironmentProperty
 }
 
 enum RangeType{
@@ -54,3 +42,5 @@ class pointer {
         this.range = RangeType.Clamp
     }
 }
+
+export { treeNode, pointer, RangeType, NodeType }
