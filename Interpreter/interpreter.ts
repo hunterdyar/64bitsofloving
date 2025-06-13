@@ -27,9 +27,25 @@ function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
             }
             throw new Error("Unknown identifier "+node.source);
         case NodeType.Assign:
+            let valueOrRange = EvaluateNode(node.children[1],env)
+            let pointerNode = node.children[0]?.children[0];
+
+            if(pointerNode instanceof pointer){
+                //convert to pointer.
+                if(pointerNode instanceof pointer){
+                    if(valueOrRange instanceof pointer){
+                        env.Copy(valueOrRange, pointerNode)
+                    }else if(valueOrRange instanceof bitValue){
+                        env.Set(pointerNode, valueOrRange)
+                    }
+                }else{
+                    throw new Error("uh oh!");
+                }
+            }
+
+            //todo: move up into that if.
             let assigneeString = node.children[0].source
             let assignee = env.GetRangeFromIdent(assigneeString)
-            let valueOrRange = EvaluateNode(node.children[1],env)
             
             //if it is a range, update or set assignee.
             if(valueOrRange instanceof pointer){

@@ -12,8 +12,8 @@ s.addOperation("toTree",{
     //@ts-ignore
     Program(s) {return new treeNode(NodeType.Program, "program", s.children.map(x=>x.toTree()))},
     //@ts-ignore
-    Assign(ident,w,expr) {
-         return new treeNode(NodeType.Assign,this, [ident.toTree(), expr.toTree()])
+    Assign(left,w,expr) {
+         return new treeNode(NodeType.Assign,this, [left.toTree(), expr.toTree()])
     },
     Range(open, start, colon, end,close){
         let s = Number(start.sourceString)

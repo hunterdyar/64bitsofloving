@@ -76,6 +76,16 @@ class Environment{
         }
         throw new Error("bit "+bit+" is out of range.")
     }
+    Copy(source: pointer, target: pointer){
+        for(let i = 0;i<Math.min(source.length, target.length);i++){
+            var b = this.memory[source.start+1];
+            if( b != undefined){
+                this.memory[target.start+i] = b
+            } else{
+                throw new Error("uh oh!");
+            }
+        }
+    }
 }
 
 export {Environment}

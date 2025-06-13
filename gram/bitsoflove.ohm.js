@@ -26,7 +26,8 @@ Bits {
     div = "/"
     mod = "%"
     not = "~"
-    
+    assign = "="
+
     signed = "s"
     unsigned = "u"
     float = "f"
@@ -43,7 +44,8 @@ Bits {
   | BinOp
     
  Assign
- 	= ident "=" Expr
+ 	= ident assign Expr
+  | Range assign Expr
    
   BinOp
  	= Expr binops Expr
