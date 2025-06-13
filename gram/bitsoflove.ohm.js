@@ -4,9 +4,9 @@ Bits {
     = Statement*
     
   Statement
-    = Assign ~unrops
+    = Assign
     | UnrOp
-    | BinOp ~unrops
+    | BinOp
 
     
     startPoint = "["

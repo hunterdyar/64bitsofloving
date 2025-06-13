@@ -14,6 +14,9 @@ class Environment{
 
     clear(){
         this.memory = new Array<boolean>(64)    
+        for(let i = 0;i<this.memory.length;i++){
+            this.SetBit(i,false);
+        }
         this.globals = {}
         this.populateDefaultVariables()
     }

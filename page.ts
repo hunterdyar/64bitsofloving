@@ -58,6 +58,7 @@ function onBitChanged(bit: number, val: boolean){
     var b = bitContainer?.children[bit]
     if(b){
         b.innerHTML = val ? "1" : "0";
+        b.classList = val ? "bit filled" : "bit empty"
     }
 }
 

@@ -4,7 +4,6 @@
     "": {
       "name": "64bitsorless",
       "dependencies": {
-        "64bitsorless": ".",
         "codemirror": "^6.0.1",
         "fs": "^0.0.1-security",
         "ohm-js": "^17.1.0",
@@ -19,8 +18,6 @@
     },
   },
   "packages": {
-    "64bitsorless": ["64bitsorless@file:", { "dependencies": { "64bitsorless": ".", "fs": "^0.0.1-security", "ohm-js": "^17.1.0" }, "devDependencies": { "@ohm-js/cli": "^2.0.0", "@types/bun": "latest" }, "peerDependencies": { "typescript": "^5" } }],
-
     "@codemirror/autocomplete": ["@codemirror/autocomplete@6.18.6", "", { "dependencies": { "@codemirror/language": "^6.0.0", "@codemirror/state": "^6.0.0", "@codemirror/view": "^6.17.0", "@lezer/common": "^1.0.0" } }, "sha512-PHHBXFomUs5DF+9tCOM/UoW6XQ4R44lLNNhRaW9PKPTU0D7lIjRg3ElxaJnTwsl/oHiR93WSXDBrekhoUGCPtg=="],
 
     "@codemirror/commands": ["@codemirror/commands@6.8.1", "", { "dependencies": { "@codemirror/language": "^6.0.0", "@codemirror/state": "^6.4.0", "@codemirror/view": "^6.27.0", "@lezer/common": "^1.1.0" } }, "sha512-KlGVYufHMQzxbdQONiLyGQDUW0itrLZwq3CcY7xpv9ZLRHqzkBSoteocBHtMCoY7/Ci4xhzSrToIeLg7FxHuaw=="],
@@ -104,7 +101,5 @@
     "undici-types": ["undici-types@7.8.0", "", {}, "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="],
 
     "w3c-keyname": ["w3c-keyname@2.2.8", "", {}, "sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ=="],
-
-    "64bitsorless/64bitsorless": ["64bitsorless@file:.", {}],
   }
 }
