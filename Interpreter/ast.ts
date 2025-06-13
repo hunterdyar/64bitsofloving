@@ -7,12 +7,20 @@ enum NodeType {
     Literal,
     Identifier,
     Range,
-    UnaryOp
+    UnaryOp,
+    BinaryOp
 }
 enum Ops{
     Not,
     ShiftRight,
-    ShiftLeft
+    ShiftLeft,
+    Or,
+    And,
+    Xor,
+    Plus,
+    Minus,
+    Dec,
+    Inc
 }
 enum RangeType{
     Clamp = 0,

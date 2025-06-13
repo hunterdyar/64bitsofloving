@@ -28,6 +28,25 @@ s.addOperation("toTree",{
                 return new treeNode(NodeType.UnaryOp, this, [Ops.ShiftLeft, expr.toTree()])
             case ">>":
                 return new treeNode(NodeType.UnaryOp, this, [Ops.ShiftRight, expr.toTree()])
+            case "--":
+                return new treeNode(NodeType.UnaryOp, this, [Ops.Dec, expr.toTree()])
+            case "++":
+                return new treeNode(NodeType.UnaryOp, this, [Ops.Inc, expr.toTree()])
+
+        }
+    },
+    BinOp(left,op,right){
+        switch(op.sourceString){
+            case "|":
+                return new treeNode(NodeType.BinaryOp, this, [Ops.Or, left.toTree(), right.toTree()])
+            case "&":
+                return new treeNode(NodeType.BinaryOp, this, [Ops.And, left.toTree(), right.toTree()])
+            case "^":
+                return new treeNode(NodeType.BinaryOp, this, [Ops.Xor, left.toTree(), right.toTree()])
+            case "+":
+                return new treeNode(NodeType.BinaryOp, this, [Ops.Plus, left.toTree(), right.toTree()])
+            case "-":
+                return new treeNode(NodeType.BinaryOp, this, [Ops.Minus, left.toTree(), right.toTree()])
 
         }
     },

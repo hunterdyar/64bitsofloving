@@ -65,5 +65,6 @@ function onBitChanged(bit: number, val: boolean){
 function run(){
     let doc = view.state.doc.toString();
     ParseAndRun(doc, env)
+    localStorage.setItem(localStorageKey, doc);
 
 }

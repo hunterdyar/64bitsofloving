@@ -77,11 +77,21 @@ function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
             }
             break;
         case NodeType.UnaryOp:
-            console.log("unary", node)
             let operand = EvaluateNode(node.children[1], env)
             return DoUnary(node.children[0], operand, env)
             break;
+        case NodeType.BinaryOp:
+            let left = EvaluateNode(node.children[1], env)
+            let right = EvaluateNode(node.children[2], env)
+            return DoBinary(node.children[0], left, right, env);
+
     }
+}
+
+function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environment){
+    //todo: create an interface that allows pointers and values to avoid a nested nightmare of if/elses for getting/setting bits. 
+
+    return undefined
 }
 
 function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
