@@ -4,9 +4,10 @@ Bits {
     = Statement*
     
   Statement
-    = Assign
+    = Assign ~unrops
     | UnrOp
-    | BinOp
+    | BinOp ~unrops
+
     
     startPoint = "["
     endPoint = "]"
@@ -24,14 +25,22 @@ Bits {
     mult = "*"
     div = "/"
     mod = "%"
+    not = "~"
+    
+    signed = "s"
+    unsigned = "u"
+    float = "f"
+    numSuffix = signed | unsigned | float
     
     binops = add | sub | or | and | xor | mult | div | mod
-   	unrops = inc | dec | shiftRight | shiftLeft
+   	unrops = inc | dec | shiftRight | shiftLeft | not
     
   Expr
-  = ident
+  = ident 
   | Range
   | literal
+  | UnrOp
+  | BinOp
     
  Assign
  	= ident "=" Expr
@@ -46,13 +55,15 @@ Bits {
    = startPoint Expr divPoint Expr? endPoint
   
   literal
-  = number
+  = number numSuffix?
     
   ident  (an identifier)
     = letter alnum*
+    
 
   number  (a number)
     = digit* "." digit+  -- fract
     | digit+             -- whole
+    
 }
 `

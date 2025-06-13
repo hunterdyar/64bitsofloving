@@ -3,33 +3,36 @@ import { basicSetup } from "codemirror";
 import {EditorState, StateField} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
+import {ParseAndRun} from "./Interpreter/parser"
+import { Environment } from "./Interpreter/environment";
 
 const localStorageKey = "64BitsOrLessEditorValue"
 let starting = localStorage.getItem(localStorageKey);
-const bit_container = document.getElementById("bitcontainer");
+const bitContainer = document.getElementById("bitcontainer");
 const inputContainer = document.getElementById("inputContainer") as HTMLDivElement
-
+const runButton = document.getElementById("run");
 
 if(!starting){
-    starting = `a16 = ~(0:8)
+    starting = `a = [0:8]
+    a = 255
+    a = 200
     `
     }
 
 function loadbits(){
-    if(bit_container == null){
+    if(bitContainer == null){
         return;
     }
     for(var i=0;i<64;i++){
         var bit = document.createElement("div");
         bit.className = "bit"
         bit.id = "bit"+i;
-        bit_container.appendChild(bit);
+        bitContainer.appendChild(bit);
         bit.innerText = "0";
     }
 }
 
 
-console.log("page loading");
 loadbits();
 
 
@@ -45,3 +48,21 @@ let view = new EditorView({
     parent: inputContainer,
   })
 
+if(runButton != null){
+  runButton.onclick = (e) => run()
+}
+
+const env = new Environment();
+env.onchange = onBitChanged;
+function onBitChanged(bit: number, val: boolean){
+    var b = bitContainer?.children[bit]
+    if(b){
+        b.innerHTML = val ? "1" : "0";
+    }
+}
+
+function run(){
+    let doc = view.state.doc.toString();
+    ParseAndRun(doc, env)
+
+}
