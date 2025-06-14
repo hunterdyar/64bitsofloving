@@ -79,7 +79,7 @@ const lastStepHighlightField = StateField.define<DecorationSet>({
 
 const lastStepHighlightMark = Decoration.mark({class: "cm-laststep"})
 const lastStepHighlightTHeme = EditorView.baseTheme({
-  ".cm-laststep": { backgroundColor: "yellow", textDecoration: "underline 1px solid grey" }
+  ".cm-laststep": { backgroundColor: "lemonchiffon", textDecoration: "underline 1px solid grey" }
 })
 
 let state = EditorState.create({

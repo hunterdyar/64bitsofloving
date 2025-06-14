@@ -96,7 +96,13 @@
             background-color: darkblue;
             color: white;
            }
-
+           .controls{
+            margin-bottom: .5em;
+            height: 1.5em;
+           }
+           .controls button{
+            height: 100%;
+           }
         </style>
     </head>
 
@@ -116,11 +122,14 @@
         </section>
 
         <section id="textentry" class="textentry">
+            <div id="buttons" class="controls">
+                <button id="run">run</button>
+                <span> | </span>
+                <button id="compile">compile</button>
+                <button id="step">step</button>
+            </div>
             <div id="inputContainer"></div>
-            <button id="run">run</button>
-            <span> | </span>
-            <button id="compile">compile</button>
-            <button id="step">step</button>
+
         </section>
      
         <section id ="preview" class="output">
