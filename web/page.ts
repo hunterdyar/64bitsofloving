@@ -1,11 +1,11 @@
 
 import { basicSetup } from "codemirror";
-import {EditorState, StateField, StateEffect} from "@codemirror/state"
+import {EditorState, StateField, StateEffect, RangeSet} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
 import { Decoration, type DecorationSet } from "@codemirror/view";
-import { Environment } from "./Interpreter/environment";
-import type { treeNode } from "./Interpreter/ast";
+import { Environment } from "../interpreter/environment";
+import type { treeNode } from "../interpreter/ast";
 
 const localStorageKey = "64BitsOrLessEditorValue"
 let starting = localStorage.getItem(localStorageKey);
@@ -50,32 +50,34 @@ const compileOnChangePlugin = ViewPlugin.fromClass(class {
     destroy() { this.dom.remove() }
   })
 
-// const addUnderline = StateEffect.define<{from: number, to: number}>({
-//   map: ({from, to}, change) => ({from: change.mapPos(from), to: change.mapPos(to)})
-// })
-
-// const underlineField = StateField.define<DecorationSet>({
-//   create() {
-//     return Decoration.none
-//   },
-//   update(underlines, tr) {
-//     //i dont want and shouldn't need basically any of this???
-//             underlines = underlines.map(tr.changes)
-//             for (let e of tr.effects) if (e.is(addUnderline)) {
-//                 underlines = underlines.update({
-//                 add: [underlineMark.range(e.value.from, e.value.to)]
-//             })
+  const addLastStepHighlight = StateEffect.define<{from: number, to: number}>({
+    map: ({from, to}, change) => ({from: change.mapPos(from), to: change.mapPos(to)})
+  })
+const lastStepHighlightField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none
+  },
+  update(underlines, tr) {
+    //i dont want and shouldn't need basically any of this???
+        underlines = underlines.update({
+            filter: (a,b)=> false
+        })
+        for (let e of tr.effects) if (e.is(addLastStepHighlight)) {
+                
+                underlines = underlines.update({
+                add: [lastStepHighlightMark.range(e.value.from, e.value.to)]
+            })
             
-//         }
-//         return underlines;
-//       },
-//   provide: f => EditorView.decorations.from(f)
-// })
+        }
+        return underlines;
+      },
+  provide: f => EditorView.decorations.from(f)
+})
 
-// const underlineMark = Decoration.mark({class: "cm-underline"})
-// const underlineTheme = EditorView.baseTheme({
-//   ".cm-underline": { textDecoration: "underline 3px black" }
-// })
+const lastStepHighlightMark = Decoration.mark({class: "cm-laststep"})
+const lastStepHighlightTHeme = EditorView.baseTheme({
+  ".cm-laststep": { backgroundColor: "yellow", textDecoration: "underline 1px solid grey" }
+})
 
 let state = EditorState.create({
     doc: starting,
@@ -110,14 +112,13 @@ function onBitChanged(bit: number, val: boolean){
     }
 }
 function onStep(last: treeNode | undefined){
-    // if(last != undefined){
-    //     let from = last.sourceInterval.startIdx
-    //     let to = last.sourceInterval.endIdx
-    //     let effects: StateEffect<unknown>[] = [addUnderline.of({from,to})]
-    //     effects.push(StateEffect.appendConfig.of([underlineField,
-    //                                             underlineTheme]))
-    //     view.dispatch({effects})
-    //  }
+    if(last != undefined){
+        let from = last.sourceInterval.startIdx
+        let to = last.sourceInterval.endIdx
+        let effects: StateEffect<unknown>[] = [addLastStepHighlight.of({from,to})]
+        effects.push(StateEffect.appendConfig.of([lastStepHighlightField, lastStepHighlightTHeme]))
+        view.dispatch({effects})
+     }
 }
 
 function run(){

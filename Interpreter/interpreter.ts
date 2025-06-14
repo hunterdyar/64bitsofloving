@@ -20,6 +20,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             if(range){
                 env.push(range);
                 yield node
+                return
             }
             throw new Error("Unknown identifier "+node.source);
         case NodeType.Assign:
@@ -33,9 +34,11 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                     if(valueOrRange instanceof pointer){
                         env.Copy(valueOrRange, pointerNode)
                         yield node
+                        return
                     }else if(valueOrRange instanceof bitValue){
                         env.Set(pointerNode, valueOrRange)
                         yield node
+                        return
                     }
                 }else{
                     throw new Error("uh oh!");
@@ -93,6 +96,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             let binary = DoBinary(node.children[0], left, right, env);
             env.push(binary);
             yield node
+            break
     }
 }
 
@@ -105,7 +109,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
     if(operand === undefined){
         throw new Error("uh oh")
     }
-    console.log("op: "+ Ops[op])
     switch (op){
         case Ops.Not:
             if(operand instanceof pointer){
