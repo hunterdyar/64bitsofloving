@@ -169,6 +169,7 @@ class Environment{
         }
         throw new Error("bit "+bit+" is out of range.")
     }
+    
     //todo: onchange
     Copy(source: pointer, target: pointer){
         for(let i = 0;i<Math.min(source.length, target.length);i++){

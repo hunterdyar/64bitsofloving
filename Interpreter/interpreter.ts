@@ -112,18 +112,45 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             break;
         case NodeType.While:
             yield* EvaluateNode(node.children[0], env)
-            let breakcounter = 0
+            let whilebreakcounter = 0
             while(Truthy(env.pop())){
                 //do body
                 for(let i = 0; i<node.children[1].length;i++){
                     yield* EvaluateNode(node.children[1][i],env)
                 }
                 //back to top. now reevaluate node.
-                breakcounter++
-                if(breakcounter > 1024){
+                whilebreakcounter++
+                if(whilebreakcounter > 1024){
                     throw new Error("Loop overflow exception! 1024 is max loop count.")
                 }
                 yield* EvaluateNode(node.children[0],env)
+            }
+            //yield node
+            break
+        case NodeType.For:
+             if(node.children[0].type === NodeType.Literal){
+                //todo: move this logic to parser, by changing expression to range or identifier only, no literals.
+                throw new Error("Invalid argument for for loop.")        
+            }
+            yield* EvaluateNode(node.children[0], env)
+            let forbreakcounter = 0
+            while(Truthy(env.pop())){
+                
+                //do body
+                for(let i = 0; i<node.children[1].length;i++){
+                    yield* EvaluateNode(node.children[1][i],env)
+                }
+                //back to top. now reevaluate node.
+                forbreakcounter++
+                if(forbreakcounter > 1024){
+                    throw new Error("Loop overflow exception! 1024 is max loop count.")
+                }
+                //for is the same as while, but we automatically do a decrement.
+                //this is super broken if we give it something other than a pointer.
+                yield* EvaluateNode(node.children[0],env)
+               
+                var x = DoUnary(Ops.Dec, env.pop(),env);
+                env.push(x)
             }
             //yield node
             break

@@ -88,10 +88,13 @@ s.addOperation("toTree",{
         switch(ident.sourceString){
             case "if":
                 return new treeNode(NodeType.If, this, [expr.toTree(), block.toTreeArray()])
-            break;
             case "while":
+            case "wh":
+            case "w":
                 return new treeNode(NodeType.While, this, [expr.toTree(), block.toTreeArray()])
-            break;
+            case "for":
+            case "f":
+                return new treeNode(NodeType.For, this, [expr.toTree(), block.toTreeArray()])
             default:
                 throw new Error("invalid block call identifier "+ident.sourceString+".")
         }
