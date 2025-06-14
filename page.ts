@@ -1,8 +1,9 @@
 
 import { basicSetup } from "codemirror";
-import {EditorState, StateField} from "@codemirror/state"
+import {EditorState, StateField, StateEffect} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
+import { Decoration, type DecorationSet } from "@codemirror/view";
 import { Environment } from "./Interpreter/environment";
 import type { treeNode } from "./Interpreter/ast";
 
@@ -33,15 +34,53 @@ function loadbits(){
         bit.innerText = "0";
     }
 }
-
-
 loadbits();
 
+const compileOnChangePlugin = ViewPlugin.fromClass(class {
+    constructor(view: any) {
+        env?.CompileAndInitiate(view.state.doc)
+    }
+    update(update: any) {
+      if (update.docChanged){
+        env?.CompileAndInitiate(update.state.doc)
+        localStorage.setItem(localStorageKey,update.state.doc)
+      }
+    }
+    //@ts-ignore
+    destroy() { this.dom.remove() }
+  })
+
+// const addUnderline = StateEffect.define<{from: number, to: number}>({
+//   map: ({from, to}, change) => ({from: change.mapPos(from), to: change.mapPos(to)})
+// })
+
+// const underlineField = StateField.define<DecorationSet>({
+//   create() {
+//     return Decoration.none
+//   },
+//   update(underlines, tr) {
+//     //i dont want and shouldn't need basically any of this???
+//             underlines = underlines.map(tr.changes)
+//             for (let e of tr.effects) if (e.is(addUnderline)) {
+//                 underlines = underlines.update({
+//                 add: [underlineMark.range(e.value.from, e.value.to)]
+//             })
+            
+//         }
+//         return underlines;
+//       },
+//   provide: f => EditorView.decorations.from(f)
+// })
+
+// const underlineMark = Decoration.mark({class: "cm-underline"})
+// const underlineTheme = EditorView.baseTheme({
+//   ".cm-underline": { textDecoration: "underline 3px black" }
+// })
 
 let state = EditorState.create({
     doc: starting,
     extensions: [
-      basicSetup,keymap.of(defaultKeymap), keymap.of(indentWithTab),
+      basicSetup, compileOnChangePlugin, keymap.of(defaultKeymap), keymap.of(indentWithTab),
     ]
 })
 
@@ -71,7 +110,14 @@ function onBitChanged(bit: number, val: boolean){
     }
 }
 function onStep(last: treeNode | undefined){
-    console.log("step:", last?.source)
+    // if(last != undefined){
+    //     let from = last.sourceInterval.startIdx
+    //     let to = last.sourceInterval.endIdx
+    //     let effects: StateEffect<unknown>[] = [addUnderline.of({from,to})]
+    //     effects.push(StateEffect.appendConfig.of([underlineField,
+    //                                             underlineTheme]))
+    //     view.dispatch({effects})
+    //  }
 }
 
 function run(){

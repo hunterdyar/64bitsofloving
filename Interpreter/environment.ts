@@ -6,7 +6,10 @@ class Environment{
     stack: runtimeType[]
     program: Generator<treeNode> | undefined
     running: boolean
+    compiled: boolean
+    cleared: boolean
     lastExecuted: treeNode | undefined
+    error: Error | undefined
     globals: {[id: string] : pointer}
     onchange: (bit:number,value:boolean) => void
     onStep: (undefined | ((last:treeNode | undefined) => void))
@@ -18,15 +21,31 @@ class Environment{
         this.populateDefaultVariables()
         this.program = undefined
         this.running = false
+        this.compiled = false
+        this.cleared = false
     }
 
     CompileAndInitiate(code: string): void{
-        this.clear()
-        let root = Parse(code)
-        this.program = EvaluateNode(root, this);
+        if(!this.cleared){
+            this.clear()
+        }
+        
+        this.compiled = false;
+        //try... report error.
+        try{
+            this.error = undefined
+            let root = Parse(code)
+            this.program = EvaluateNode(root, this);
+            this.compiled = true;
+        }catch (e){
+            if(e instanceof Error){
+                this.error = e;
+            }
+        }
     }
 
     RunToEnd(){
+        this.cleared = false;
         this.running = true
         //todo: refactor this to iterate directly to avoid all the calls.
         while(this.running){
@@ -35,6 +54,7 @@ class Environment{
     }
 
     step(){
+        this.cleared = false;
         if(this.program!=undefined){
             let x = this.program.next()
             this.lastExecuted = x.value
@@ -55,6 +75,7 @@ class Environment{
         }
         this.globals = {}
         this.populateDefaultVariables()
+        this.cleared = true;
     }
 
     push(item: runtimeType){
