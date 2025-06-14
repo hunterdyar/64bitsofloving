@@ -50,6 +50,9 @@ class treeNode {
         this.children = children
         this.sourceInterval = node.source
     }
+    AsUInt(): number{
+        throw new Error("uh oh")
+    }
 }
 
 class bitValue {
@@ -62,7 +65,7 @@ class bitValue {
     AsChar(): string{
         return GetAsCharacter(this.val)
     }
-    AsUint(){
+    AsUInt(){
         return GetAsUInt(this.val)
     }
     AsBin():string{
@@ -80,7 +83,7 @@ class bitValue {
         throw new Error("can't get bit value outside of pointer length." + i + " and " + this.val.length)
     }
     DeltaUnsigned(delta: number){
-        let x = this.AsUint();
+        let x = this.AsUInt();
         x += delta;
         let b = UintToBoolArray(x, this.val.length);
         for(let i = 0;i<this.val.length;i++){

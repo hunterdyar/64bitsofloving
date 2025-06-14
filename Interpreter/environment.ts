@@ -14,13 +14,15 @@ class Environment{
     globals: {[id: string] : pointer}
     output: string
     dispay: number[]
+    displaySize: number
     onchange: ((bit:number,value:boolean) => void)
     onStep:  ((last:treeNode | undefined) => void )
     onPixel: ((x: number, color: number) => void)
     onOutput: (s: string) => void
     constructor(){
         this.memory = new Array<boolean>(64)
-        this.dispay = new Array<number>(32*32)
+        this.displaySize = 16
+        this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
         this.stack = []
 
@@ -182,7 +184,13 @@ class Environment{
         }
     }
 
-   
+    SetPixel(i:number, color: number){
+        if(i == undefined || i < 0 || i >= this.dispay.length){
+            throw new Error("display setting out of bounds");
+        }
+        this.dispay[i] = color;
+        this.onPixel(i, color);
+    }
 
     Print(deltaout: string){
         this.output+= deltaout;

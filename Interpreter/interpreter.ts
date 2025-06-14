@@ -111,11 +111,13 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             yield node
             break;
         case NodeType.While:
+            console.log("start while");
             yield* EvaluateNode(node.children[0], env)
             let whilebreakcounter = 0
             while(Truthy(env.pop())){
                 //do body
                 for(let i = 0; i<node.children[1].length;i++){
+                    console.log("in while:",NodeType[node.children[1][i].type])
                     yield* EvaluateNode(node.children[1][i],env)
                 }
                 //back to top. now reevaluate node.
@@ -179,7 +181,7 @@ function Truthy(element: runtimeType): boolean{
         return element.AsUInt() != 0
     }
     if(element instanceof bitValue){
-        return element.AsUint() != 0
+        return element.AsUInt() != 0
     }
     throw new Error("uh oh");}
 
@@ -217,7 +219,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 return;
             }
             if(intout instanceof bitValue){
-                env.Print(intout.AsUint().toString())
+                env.Print(intout.AsUInt().toString())
             }
         break;
         case "putbin":
@@ -239,6 +241,29 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 env.Print(binout.AsBin())
             }
         break;
+        case "pixel":
+        case "px":
+        case "setpixel":
+            if(args.length == 2){
+                CheckArgumentCount(fname, args, 2);
+                let i = args[0]?.AsUInt()
+                let c = args[1]?.AsUInt()
+                if(i == undefined || c == undefined){
+                    throw console.error(("Bad argument"));
+                }
+                env.SetPixel(i,c)
+            }else if(args.length == 3){
+                CheckArgumentCount(fname, args, 3)
+                let x = args[0]?.AsUInt()
+                let y = args[1]?.AsUInt()
+                let c = args[2]?.AsUInt()
+
+                if(x == undefined || y == undefined || c == undefined){
+                    throw console.error(("Bad argument"));
+                }
+                console.log("set pixel ",x,y,y*(env.displaySize)+x)
+                env.SetPixel(y*(env.displaySize)+x,c)
+            }
     }
 }
 

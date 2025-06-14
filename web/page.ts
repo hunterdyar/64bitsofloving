@@ -15,6 +15,9 @@ const runButton = document.getElementById("run");
 const stepButton = document.getElementById("step");
 const compileButton = document.getElementById("compile");
 const textOut = document.getElementById("textout");
+const imageOut = document.getElementById("imageout") as HTMLCanvasElement
+const imageOutCTX = imageOut?.getContext("2d");
+
 if(!starting){
     starting = `a = [0:8]
 a = 200
@@ -107,6 +110,8 @@ if(stepButton!=null){
 env.onchange = onBitChanged;
 env.onStep = onStep;
 env.onOutput = onOutput;
+env.onPixel = onPixel;
+
 function onBitChanged(bit: number, val: boolean){
     var b = bitContainer?.children[bit]
     if(b){
@@ -127,6 +132,56 @@ function onOutput(out: string){
     if(textOut != null){
         textOut.innerText = out;
     }
+}
+function onPixel(i: number, c: number){
+    let l = env.displaySize
+    let rs = imageOut.width/env.displaySize;
+
+    if(imageOutCTX != undefined){
+      imageOutCTX.fillStyle = colorLookup(c)
+      let x = Math.floor(i % l) * rs
+      let y = Math.floor(i / l) * rs
+
+      imageOutCTX.fillRect(x, y, rs, rs);
+    }
+}
+allPixels()
+
+function allPixels(){
+  if(imageOutCTX != undefined){
+
+    let rs = imageOut.width/env.displaySize;
+    let l = env.displaySize
+    for(let i = 0;i<env.dispay.length;i++){
+
+      let c = env.dispay[i];
+      if(c != undefined){
+        imageOutCTX.fillStyle = colorLookup(c)
+      }else{
+        imageOutCTX.fillStyle = colorLookup(0)
+      }
+
+      let x = Math.floor(i % l) * rs
+      let y = Math.floor(i / l) * rs
+      imageOutCTX.fillRect(x, y, rs, rs);
+    }
+  }
+}
+function colorLookup(c:number){
+  switch (c){
+    case 0:
+      return "black"
+    case 1:
+      return "white"
+    case 2:
+      return "red"
+    case 3:
+      return "green"
+    case 4:
+      return "blue"
+    default:
+      return "magenta"
+  }
 }
 
 
