@@ -89,6 +89,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             yield node
             break;
         case NodeType.BinaryOp:
+            console.log("evaluate bin op");
             yield* EvaluateNode(node.children[1], env)
             let left = env.pop();
             yield* EvaluateNode(node.children[2], env)
@@ -171,6 +172,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
 }
 
 function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environment){
+    throw new Error("Not implemented yet");
     //todo: create an interface that allows pointers and values to avoid a nested nightmare of if/elses for getting/setting bits. 
     return undefined
 }

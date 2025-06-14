@@ -5,11 +5,11 @@ Bits {
     
   Statement
     = Assign
+    | Call
     | UnrOp
     | BinOp
-    | Call
+    | BinAssign
 
-    
     startPoint = "["
     endPoint = "]"
     divPoint = ":"
@@ -53,7 +53,10 @@ Bits {
    
   BinOp
  	= Expr binops Expr
-    
+     
+  BinAssign
+  = Expr binops assign Expr
+
   UnrOp
   = unrops Expr
    

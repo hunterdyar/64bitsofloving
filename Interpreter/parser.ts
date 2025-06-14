@@ -75,6 +75,11 @@ s.addOperation("toTree",{
         return new treeNode(NodeType.BinaryOp, this, [Ops.Minus, left.toTree(), right.toTree()])
 
     },
+    BinAssign(left, op, assign, right){
+        let bin = this.BinOp(left, op, right);
+        console.log("binassign", left, bin)
+        return new treeNode(NodeType.Assign,this, [left.toTree(), bin])
+    },
     Call(ident,join,arglist){
         //arglist returns an array.
         return new treeNode(NodeType.Call, this, [ident.toTree(),arglist.toTreeArray()])
