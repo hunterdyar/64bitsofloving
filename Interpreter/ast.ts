@@ -1,4 +1,7 @@
 import type { Interval, Node } from "ohm-js";
+import { GetAsBinary, GetAsCharacter, GetAsUInt } from "./utility";
+import type { Environment } from "./environment";
+import type { Env } from "bun";
 
 
 enum NodeType {
@@ -8,7 +11,8 @@ enum NodeType {
     Identifier,
     Range,
     UnaryOp,
-    BinaryOp
+    BinaryOp,
+    Call,
 }
 enum Ops{
     Not,
@@ -64,11 +68,14 @@ class bitValue {
             }
         }
     }
-    GetAsUint(){
-        let a = this.val;
-        //todo:
-        //@ts-ignore
-        let n = a.reduce((res, x) => res << 1 | x)
+    AsChar(): string{
+        return GetAsCharacter(this.val)
+    }
+    AsUint(){
+        return GetAsUInt(this.val)
+    }
+    AsBin():string{
+        return GetAsBinary(this.val)
     }
     GetBit(i: number): boolean{
         if(i>=0 || i<this.val.length){
@@ -88,15 +95,29 @@ class pointer {
     start: number
     length: number
     range: RangeType
-
-    constructor(start: number, length: number){
+    env: Environment
+    
+    constructor(start: number, length: number, env: Environment){
         this.start = start
         this.length = length
         this.range = RangeType.Clamp
+        this.env = env
+    }
+    value(): boolean[]{
+        return this.env.memory.slice(this.start,this.start+this.length)
+    }
+    AsChar(): string{
+        return GetAsCharacter(this.value())
+    }
+    AsUInt(): number{
+        return GetAsUInt(this.value())
+    }
+    AsBin():string{
+        return GetAsBinary(this.value())
     }
 }
 
 type runtimeType = treeNode | pointer | bitValue | undefined
 
 
-export { treeNode, pointer, bitValue, RangeType, NodeType, Ops, runtimeType }
+export { treeNode, pointer, bitValue, RangeType, NodeType, Ops, type runtimeType }

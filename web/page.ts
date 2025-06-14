@@ -14,7 +14,7 @@ const inputContainer = document.getElementById("inputContainer") as HTMLDivEleme
 const runButton = document.getElementById("run");
 const stepButton = document.getElementById("step");
 const compileButton = document.getElementById("compile");
-
+const textOut = document.getElementById("textout");
 if(!starting){
     starting = `a = [0:8]
 a = 200
@@ -35,6 +35,9 @@ function loadbits(){
     }
 }
 loadbits();
+
+const env = new Environment();
+
 
 const compileOnChangePlugin = ViewPlugin.fromClass(class {
     constructor(view: any) {
@@ -101,9 +104,9 @@ if(stepButton!=null){
     stepButton.onclick = (e) => step()
 }
 
-const env = new Environment();
 env.onchange = onBitChanged;
-env.onStep = onStep
+env.onStep = onStep;
+env.onOutput = onOutput;
 function onBitChanged(bit: number, val: boolean){
     var b = bitContainer?.children[bit]
     if(b){
@@ -120,6 +123,12 @@ function onStep(last: treeNode | undefined){
         view.dispatch({effects})
      }
 }
+function onOutput(out: string){
+    if(textOut != null){
+        textOut.innerText = out;
+    }
+}
+
 
 function run(){
     let doc = view.state.doc.toString();

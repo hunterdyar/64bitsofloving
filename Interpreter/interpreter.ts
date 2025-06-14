@@ -97,6 +97,76 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             env.push(binary);
             yield node
             break
+        case NodeType.Call:
+            //just get the fname without evaluating the identity.
+            let fname = node.children[0].source
+            let args = []
+            let argNodes = node.children[1]
+            for(let i =0;i< argNodes.length;i++){
+                yield* EvaluateNode(argNodes[i],env)
+                args.push(env.pop())
+            }
+            DoCall(fname, args, env);
+            yield node
+    }
+}
+
+function DoCall(fname: string, args: runtimeType[], env: Environment){
+    switch(fname){
+        case "pc":
+        case "printchar":
+        case "putchar":
+            CheckArgumentCount(fname, args, 1);
+            let out = args[0]
+            if(out instanceof treeNode){
+                throw Error("Invalid Argument.");
+            }
+            if(out instanceof pointer){
+                env.Print(out.AsChar())
+                return;
+            }
+            if(out instanceof bitValue){
+                env.Print(out.AsChar())
+            }
+            
+           
+        break;
+        case "pi":
+        case "print":
+        case "printint":
+        case "putint":
+            CheckArgumentCount(fname, args, 1);
+            let intout = args[0]
+            if(intout instanceof treeNode){
+                throw Error("Invalid Argument.");
+            }
+            if(intout instanceof pointer){
+                env.Print(intout.AsUInt().toString())
+                return;
+            }
+            if(intout instanceof bitValue){
+                env.Print(intout.AsUint().toString())
+            }
+        break;
+        case "putbin":
+        case "pb":
+        case "printbin":
+        case "printbinary":
+        case "putbin":
+        case "putbinary":
+            CheckArgumentCount(fname, args, 1);
+            let binout = args[0]
+            if(binout instanceof treeNode){
+                throw Error("Invalid Argument.");
+            }
+            if(binout instanceof pointer){
+                env.Print(binout.AsBin())
+                return;
+            }
+            if(binout instanceof bitValue){
+                env.Print(binout.AsBin())
+            }
+        break;
     }
 }
 
@@ -180,5 +250,19 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
             break
     }
                  
+}
+
+function CheckArgumentCount(fname: string, args: runtimeType[], expectedCount: number){
+    if(args == undefined){
+        throw new Error("Unexpected arguments for "+fname+". Expected none")
+    }
+    if(args.length != expectedCount){
+        throw new Error("Unexpected number of arguments for "+fname+". Expected "+expectedCount+", got "+args.length)
+    }
+    args.forEach(element => {
+        if(element == undefined){
+            throw new Error("Invalid argument.")
+        }
+    });
 }
 export {EvaluateNode}

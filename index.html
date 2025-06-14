@@ -47,8 +47,10 @@
                 grid-area: editor;
            }
            .output{
+                margin-top: 1em;
                 grid-area: output;
-                background-color: grey;
+                font-size: larger;
+                background-color: lightgoldenrodyellow;
            }
            .console{
             grid-area: console;
@@ -107,6 +109,9 @@
 
         <section class="console">
             <div class="bits" id="bitcontainer">
+            </div>
+            <div class="output">
+                <p id="textout"></p>
             </div>
         </section>
 

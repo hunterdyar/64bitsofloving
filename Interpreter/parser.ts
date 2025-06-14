@@ -7,6 +7,15 @@ import { Environment } from "./environment";
 const g = grammar(bitsGrammar);
 const s = g.createSemantics()
 
+s.addOperation("toTreeArray",{
+    ArgList(first, sep, exprs){
+        let r = [first.toTree()]
+        exprs.children.forEach(x=>r.push(x.toTree()))
+        return r
+    }
+});
+
+
 s.addOperation("toTree",{
     //@ts-ignore
     Program(s) {return new treeNode(NodeType.Program, "program", s.children.map(x=>x.toTree()))},
@@ -49,6 +58,12 @@ s.addOperation("toTree",{
 
         }
     },
+    Call(ident,join,arglist){
+        //arglist returns an array.
+        return new treeNode(NodeType.Call, this, [ident.toTree(),arglist.toTreeArray()])
+    },
+    //@ts-ignore
+   
     literal(number, suffix){
         //combine intervals.
         return new treeNode(NodeType.Literal, this,[number.sourceString,suffix.sourceString])
@@ -57,6 +72,7 @@ s.addOperation("toTree",{
         return new treeNode(NodeType.Identifier, this, [])
     }
 });
+
 
 
 //environment object todo

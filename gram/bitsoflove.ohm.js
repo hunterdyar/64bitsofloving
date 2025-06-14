@@ -7,11 +7,15 @@ Bits {
     = Assign
     | UnrOp
     | BinOp
+    | Call
 
     
     startPoint = "["
     endPoint = "]"
     divPoint = ":"
+    
+    join ="."
+    sep = ","
     
     add = "+"
     inc = "++"
@@ -53,6 +57,12 @@ Bits {
   UnrOp
   = unrops Expr
    
+  ArgList
+  =  Expr (sep Expr)*
+  
+  Call
+  = ident join ArgList 
+
    Range 
    = startPoint Expr divPoint Expr? endPoint
   

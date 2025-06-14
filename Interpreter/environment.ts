@@ -11,12 +11,23 @@ class Environment{
     lastExecuted: treeNode | undefined
     error: Error | undefined
     globals: {[id: string] : pointer}
-    onchange: (bit:number,value:boolean) => void
-    onStep: (undefined | ((last:treeNode | undefined) => void))
+    output: string
+    dispay: number[]
+    onchange: ((bit:number,value:boolean) => void)
+    onStep:  ((last:treeNode | undefined) => void )
+    onPixel: ((x: number, color: number) => void)
+    onOutput: (s: string) => void
     constructor(){
         this.memory = new Array<boolean>(64)
+        this.dispay = new Array<number>(32*32)
+        this.output = ""
         this.stack = []
+
         this.onchange = (a,b)=>{}
+        this.onPixel = (a,b)=>{}
+        this.onStep = (a)=>{}
+        this.onOutput = (a)=>{}
+
         this.globals = {}
         this.populateDefaultVariables()
         this.program = undefined
@@ -70,9 +81,17 @@ class Environment{
 
     clear(){
         this.memory = new Array<boolean>(64)    
+        this.dispay = new Array<number>(32*32)
+        this.output = ""
+
         for(let i = 0;i<this.memory.length;i++){
             this.SetBit(i,false);
         }
+        for(let i = 0;i<this.dispay.length;i++){
+            this.onPixel(i,0)
+        }
+        this.onOutput("")
+        
         this.globals = {}
         this.populateDefaultVariables()
         this.cleared = true;
@@ -88,15 +107,15 @@ class Environment{
         throw new Error("Can't pop nothing.")
     }
     populateDefaultVariables(){
-        this.globals["a64"] = new pointer(0,64)
+        this.globals["a64"] = new pointer(0,64, this)
 
-        this.globals["a32"] = new pointer(0,32)
-        this.globals["b32"] = new pointer(32,32)
+        this.globals["a32"] = new pointer(0,32, this)
+        this.globals["b32"] = new pointer(32,32, this)
 
-        this.globals["a16"] = new pointer(0, 16)
-        this.globals["b16"] = new pointer(16, 16)
-        this.globals["c16"] = new pointer(32, 16)
-        this.globals["d16"] = new pointer(48, 16)
+        this.globals["a16"] = new pointer(0, 16, this)
+        this.globals["b16"] = new pointer(16, 16, this)
+        this.globals["c16"] = new pointer(32, 16, this)
+        this.globals["d16"] = new pointer(48, 16, this)
 
         this.populateAlphaVariable(8);
         this.populateAlphaVariable(4);
@@ -108,7 +127,7 @@ class Environment{
         for(let i = 0;i<=(64/c);i++){
             let offset = i*c;
             let name = alpha[i]?.toString() + c.toString()
-            this.globals[name] = new pointer(offset,c)
+            this.globals[name] = new pointer(offset,c, this)
         }
     }
     Set(loc: pointer, val: bitValue){
@@ -154,6 +173,10 @@ class Environment{
                 throw new Error("uh oh!");
             }
         }
+    }
+    Print(deltaout: string){
+        this.output+= deltaout;
+        this.onOutput(this.output)
     }
 }
 
