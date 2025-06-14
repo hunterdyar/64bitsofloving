@@ -29,34 +29,51 @@ s.addOperation("toTree",{
         return new treeNode(NodeType.Range, this,[new pointer(s,e)])
     },
     UnrOp(op,expr){
+        let uop: Ops 
         switch(op.sourceString){
             case "~":
-                return new treeNode(NodeType.UnaryOp, this, [Ops.Not, expr.toTree()])
+               uop = Ops.Not
+               break
             case "<<":
-                return new treeNode(NodeType.UnaryOp, this, [Ops.ShiftLeft, expr.toTree()])
+                uop = Ops.ShiftLeft
+               break
             case ">>":
-                return new treeNode(NodeType.UnaryOp, this, [Ops.ShiftRight, expr.toTree()])
+                uop = Ops.ShiftRight
+               break
             case "--":
-                return new treeNode(NodeType.UnaryOp, this, [Ops.Dec, expr.toTree()])
+                uop = Ops.Dec
+               break
             case "++":
-                return new treeNode(NodeType.UnaryOp, this, [Ops.Inc, expr.toTree()])
+                uop = Ops.Inc
+                break
+            default:
+                throw new Error("bad unary op");
 
         }
+        return new treeNode(NodeType.UnaryOp, this, [uop, expr.toTree()])
     },
     BinOp(left,op,right){
+        let bop: Ops
         switch(op.sourceString){
             case "|":
-                return new treeNode(NodeType.BinaryOp, this, [Ops.Or, left.toTree(), right.toTree()])
-            case "&":
-                return new treeNode(NodeType.BinaryOp, this, [Ops.And, left.toTree(), right.toTree()])
+                bop = Ops.Or;
+                break
             case "^":
-                return new treeNode(NodeType.BinaryOp, this, [Ops.Xor, left.toTree(), right.toTree()])
+                bop = Ops.Xor;
+                break
             case "+":
-                return new treeNode(NodeType.BinaryOp, this, [Ops.Plus, left.toTree(), right.toTree()])
+                bop = Ops.Plus;
+                break
             case "-":
-                return new treeNode(NodeType.BinaryOp, this, [Ops.Minus, left.toTree(), right.toTree()])
+                bop = Ops.Minus;
+                break
+            case "&":
+                bop = Ops.And;
+                break
 
         }
+        return new treeNode(NodeType.BinaryOp, this, [Ops.Minus, left.toTree(), right.toTree()])
+
     },
     Call(ident,join,arglist){
         //arglist returns an array.
