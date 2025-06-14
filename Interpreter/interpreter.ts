@@ -1,34 +1,30 @@
-import { NodeType, pointer, bitValue, treeNode, Ops } from "./ast";
+import { NodeType, pointer, bitValue, treeNode, Ops, type runtimeType } from "./ast";
 import {Environment} from "./environment"
-function Execute(node: treeNode, env: Environment): void{
-    if(node.type == NodeType.Program){
-        EvaluateNode(node, env);
-    }else{
-        console.error("Can't evaluate non-root node.")
-    }
 
-}
-type runtimeType = treeNode | pointer | bitValue | undefined
-function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
-    console.log("Evaluating "+NodeType[node.type]+" node");
+
+function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
     switch(node.type){
         case NodeType.Program:
-            node.children.forEach(element => {
-                EvaluateNode(element, env);    
-            });
+            for(let i = 0; i<node.children.length;i++){
+                yield* EvaluateNode(node.children[i],env)
+            }
+            env.running = false
             break
         case NodeType.Range:
             //parsed into a pointer at the AST.
-            return node.children[0]
+            env.push(node.children[0])
+            yield node
             break;
         case NodeType.Identifier:
             var range = env.GetRangeFromIdent(node.source);
             if(range){
-                return range;
+                env.push(range);
+                yield node
             }
             throw new Error("Unknown identifier "+node.source);
         case NodeType.Assign:
-            let valueOrRange = EvaluateNode(node.children[1],env)
+            yield* EvaluateNode(node.children[1],env)
+            let valueOrRange = env.pop();
             let pointerNode = node.children[0]?.children[0];
 
             if(pointerNode instanceof pointer){
@@ -36,12 +32,15 @@ function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
                 if(pointerNode instanceof pointer){
                     if(valueOrRange instanceof pointer){
                         env.Copy(valueOrRange, pointerNode)
+                        yield node
                     }else if(valueOrRange instanceof bitValue){
                         env.Set(pointerNode, valueOrRange)
+                        yield node
                     }
                 }else{
                     throw new Error("uh oh!");
                 }
+                return
             }
 
             //todo: move up into that if.
@@ -50,16 +49,18 @@ function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
             
             //if it is a range, update or set assignee.
             if(valueOrRange instanceof pointer){
-                console.log("setting "+assigneeString+" to ",valueOrRange)
                 env.SetOrAssign(assigneeString, valueOrRange)
+                yield node
+                return
             }
             //if valueOrRange is value, set range to it.
             if(valueOrRange instanceof bitValue){
-                console.log("setting "+assigneeString+" to ",valueOrRange)
                 if(assignee == undefined){
                     throw new Error("unknown identifier: "+assigneeString+". To declare variable, assign to a range first.")
                 }
                 env.Set(assignee, valueOrRange)
+                yield node
+                return
             }
             break;
         case NodeType.Literal:
@@ -69,7 +70,8 @@ function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
                 let num = parseInt(node.children[0])
                 var v = new bitValue();
                 v.SetByUint(num);
-                return v;
+                env.push(v);
+                yield node
             }else if(suffix == "s"){
                 throw new Error("signed integers not yet supported.");
             }else if(suffix =="f"){
@@ -77,20 +79,25 @@ function EvaluateNode(node: treeNode, env: Environment) : runtimeType {
             }
             break;
         case NodeType.UnaryOp:
-            let operand = EvaluateNode(node.children[1], env)
-            return DoUnary(node.children[0], operand, env)
+            yield* EvaluateNode(node.children[1], env)
+            let operand = env.pop();
+            let unary = DoUnary(node.children[0], operand, env)
+            env.push(unary);
+            yield node
             break;
         case NodeType.BinaryOp:
-            let left = EvaluateNode(node.children[1], env)
-            let right = EvaluateNode(node.children[2], env)
-            return DoBinary(node.children[0], left, right, env);
-
+            yield* EvaluateNode(node.children[1], env)
+            let left = env.pop();
+            yield* EvaluateNode(node.children[2], env)
+            let right = env.pop();
+            let binary = DoBinary(node.children[0], left, right, env);
+            env.push(binary);
+            yield node
     }
 }
 
 function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environment){
     //todo: create an interface that allows pointers and values to avoid a nested nightmare of if/elses for getting/setting bits. 
-
     return undefined
 }
 
@@ -171,4 +178,4 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
     }
                  
 }
-export {Execute}
+export {EvaluateNode}

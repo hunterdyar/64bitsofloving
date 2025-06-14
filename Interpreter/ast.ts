@@ -96,4 +96,7 @@ class pointer {
     }
 }
 
-export { treeNode, pointer, bitValue, RangeType, NodeType, Ops }
+type runtimeType = treeNode | pointer | bitValue | undefined
+
+
+export { treeNode, pointer, bitValue, RangeType, NodeType, Ops, runtimeType }

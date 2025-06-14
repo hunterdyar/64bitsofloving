@@ -1,15 +1,51 @@
-import { bitValue, pointer } from "./ast";
-
+import { bitValue, pointer, treeNode, type runtimeType } from "./ast";
+import { EvaluateNode } from "./interpreter";
+import { Parse } from "./parser";
 class Environment{
     memory: boolean[]
+    stack: runtimeType[]
+    program: Generator<treeNode> | undefined
+    running: boolean
+    lastExecuted: treeNode | undefined
     globals: {[id: string] : pointer}
     onchange: (bit:number,value:boolean) => void
-
+    onStep: (undefined | ((last:treeNode | undefined) => void))
     constructor(){
         this.memory = new Array<boolean>(64)
+        this.stack = []
         this.onchange = (a,b)=>{}
         this.globals = {}
         this.populateDefaultVariables()
+        this.program = undefined
+        this.running = false
+    }
+
+    CompileAndInitiate(code: string): void{
+        this.clear()
+        let root = Parse(code)
+        this.program = EvaluateNode(root, this);
+    }
+
+    RunToEnd(){
+        this.running = true
+        //todo: refactor this to iterate directly to avoid all the calls.
+        while(this.running){
+            this.step()
+        }
+    }
+
+    step(){
+        if(this.program!=undefined){
+            let x = this.program.next()
+            this.lastExecuted = x.value
+            if(this.onStep != null)
+            {
+                this.onStep(this.lastExecuted)
+            }
+            else{
+            console.log("Can't step, need to initiate first.")
+            }
+        }
     }
 
     clear(){
@@ -21,6 +57,15 @@ class Environment{
         this.populateDefaultVariables()
     }
 
+    push(item: runtimeType){
+        this.stack.push(item)
+    }
+    pop(): runtimeType{
+        if(this.stack.length > 0){
+            return this.stack.pop();
+        }
+        throw new Error("Can't pop nothing.")
+    }
     populateDefaultVariables(){
         this.globals["a64"] = new pointer(0,64)
 

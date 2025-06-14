@@ -3,7 +3,6 @@ import { bitsGrammar }from "../gram/bitsoflove.ohm"
 import { grammar } from "ohm-js";
 import {treeNode, NodeType, pointer, Ops} from "./ast"
 import { Environment } from "./environment";
-import { Execute } from "./interpreter";
 
 const g = grammar(bitsGrammar);
 const s = g.createSemantics()
@@ -61,19 +60,17 @@ s.addOperation("toTree",{
 
 
 //environment object todo
-function ParseAndRun(input: string, env: Environment){
+function Parse(input: string): treeNode{
     performance.mark("parse-start");
     let lex = g.match(input);
     if(lex.succeeded())
     {
         let ast = s(lex).toTree();
         performance.mark("parse-end");
-        env.clear();
-        Execute(ast, env)
-        // return compileAndRun(canvas, ast);
+        return ast;
     }else{
         throw new SyntaxError(lex.message)
     }
 }
 
-export {ParseAndRun}
+export {Parse}
