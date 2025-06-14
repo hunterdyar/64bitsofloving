@@ -109,8 +109,52 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             }
             DoCall(fname, args, env);
             yield node
+            break;
+        case NodeType.While:
+            yield* EvaluateNode(node.children[0], env)
+            let breakcounter = 0
+            while(Truthy(env.pop())){
+                //do body
+                for(let i = 0; i<node.children[1].length;i++){
+                    yield* EvaluateNode(node.children[1][i],env)
+                }
+                //back to top. now reevaluate node.
+                breakcounter++
+                if(breakcounter > 1024){
+                    throw new Error("Loop overflow exception! 1024 is max loop count.")
+                }
+                yield* EvaluateNode(node.children[0],env)
+            }
+            //yield node
+            break
+        case NodeType.If:
+                yield* EvaluateNode(node.children[0], env)
+                if(Truthy(env.pop())){
+                    //do body
+                    for(let i = 0; i<node.children[1].length;i++){
+                        yield* EvaluateNode(node.children[1][i],env)
+                    }
+                }else{
+                    //do else/alternative.
+                    if(node.children.length == 3){
+                        for(let i = 0; i<node.children[2].length;i++){
+                            yield* EvaluateNode(node.children[2][i],env)
+                        }
+                    }
+                }
+                //yield node
+                break
     }
 }
+function Truthy(element: runtimeType): boolean{
+   
+    if(element instanceof pointer){
+        return element.AsUInt() != 0
+    }
+    if(element instanceof bitValue){
+        return element.AsUint() != 0
+    }
+    throw new Error("uh oh");}
 
 function DoCall(fname: string, args: runtimeType[], env: Environment){
     switch(fname){
@@ -130,7 +174,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 env.Print(out.AsChar())
             }
             
-           
+           console.log("put char")
         break;
         case "pi":
         case "print":
@@ -202,7 +246,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
             throw Error("unexpected op: "+op);
         case Ops.ShiftLeft:
             if(operand instanceof pointer){
-                            console.log("shifting pointer left", operand.start, operand.length);
                 for(let i = operand.start+operand.length-1; i>=operand.start+1;i--){
                     var b = env.GetBit(i-1);
                     env.SetBit(i, b)
@@ -210,7 +253,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                 env.SetBit(operand.start, false)
                 return operand
             }else if(operand instanceof bitValue){
-                            console.log("shifting value left");
                 for(let i  = operand.val.length-1;i>0;i--){
                     let n = operand.val[i-1]
                     if(n != undefined){
@@ -227,7 +269,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
             break
          case Ops.ShiftRight:
             if(operand instanceof pointer){
-                            console.log("shifting pointer left", operand.start, operand.length);
                 for(let i = operand.start; i<operand.start+operand.length-1;i++){
                     var b = env.GetBit(i+1);
                     env.SetBit(i, b)
@@ -235,7 +276,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                 env.SetBit(operand.start+operand.length, false)
                 return operand
             }else if(operand instanceof bitValue){
-                            console.log("shifting value left");
                 for(let i = 0; i<operand.val.length-1;i++){
                     let n = operand.val[i-1]
                     if(n != undefined){
@@ -250,6 +290,27 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                 throw Error("uh?");
             }
             break
+        case Ops.Dec:
+            if(operand instanceof pointer){
+                operand.DeltaUnsigned(-1);
+                return operand
+            }else if(operand instanceof bitValue){
+                operand.DeltaUnsigned(-1)
+                return operand
+            }else if(operand instanceof treeNode){
+                throw Error("uh?");
+            }
+            break
+        case Ops.Inc:
+            if(operand instanceof pointer){
+                operand.DeltaUnsigned(1);
+                return operand
+            }else if(operand instanceof bitValue){
+                operand.DeltaUnsigned(1)
+                return operand
+            }else if(operand instanceof treeNode){
+                throw Error("uh?");
+            }
     }
                  
 }

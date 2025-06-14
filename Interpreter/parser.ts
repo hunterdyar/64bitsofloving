@@ -12,7 +12,11 @@ s.addOperation("toTreeArray",{
         let r = [first.toTree()]
         exprs.children.forEach(x=>r.push(x.toTree()))
         return r
+    },
+    Block(div, stmnts, close){
+        return stmnts.children.map(x=>x.toTree())
     }
+
 });
 
 
@@ -80,12 +84,24 @@ s.addOperation("toTree",{
         console.log("binassign", left, bin)
         return new treeNode(NodeType.Assign,this, [left.toTree(), bin])
     },
+    BlockCall(ident, join, expr, block){
+        switch(ident.sourceString){
+            case "if":
+                return new treeNode(NodeType.If, this, [expr.toTree(), block.toTreeArray()])
+            break;
+            case "while":
+                return new treeNode(NodeType.While, this, [expr.toTree(), block.toTreeArray()])
+            break;
+            default:
+                throw new Error("invalid block call identifier "+ident.sourceString+".")
+        }
+    },
     Call(ident,join,arglist){
         //arglist returns an array.
         return new treeNode(NodeType.Call, this, [ident.toTree(),arglist.toTreeArray()])
     },
     //@ts-ignore
-   
+    
     literal(number, suffix){
         //combine intervals.
         return new treeNode(NodeType.Literal, this,[number.sourceString,suffix.sourceString])

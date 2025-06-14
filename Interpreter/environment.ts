@@ -1,6 +1,7 @@
 import { bitValue, pointer, treeNode, type runtimeType } from "./ast";
 import { EvaluateNode } from "./interpreter";
 import { Parse } from "./parser";
+import { UintToBoolArray } from "./utility";
 class Environment{
     memory: boolean[]
     stack: runtimeType[]
@@ -40,7 +41,7 @@ class Environment{
         if(!this.cleared){
             this.clear()
         }
-        
+
         this.compiled = false;
         //try... report error.
         try{
@@ -52,6 +53,7 @@ class Environment{
             if(e instanceof Error){
                 this.error = e;
             }
+            console.error(this.error)
         }
     }
 
@@ -76,6 +78,9 @@ class Environment{
             else{
             console.log("Can't step, need to initiate first.")
             }
+        }else{
+            console.log("Undefined Program! compile");
+            this.running = false;
         }
     }
 
@@ -164,6 +169,7 @@ class Environment{
         }
         throw new Error("bit "+bit+" is out of range.")
     }
+    //todo: onchange
     Copy(source: pointer, target: pointer){
         for(let i = 0;i<Math.min(source.length, target.length);i++){
             var b = this.memory[source.start+1];
@@ -174,6 +180,9 @@ class Environment{
             }
         }
     }
+
+   
+
     Print(deltaout: string){
         this.output+= deltaout;
         this.onOutput(this.output)

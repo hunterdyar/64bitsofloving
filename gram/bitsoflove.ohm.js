@@ -5,6 +5,7 @@ Bits {
     
   Statement
     = Assign
+    | BlockCall
     | Call
     | UnrOp
     | BinOp
@@ -16,6 +17,7 @@ Bits {
     
     join ="."
     sep = ","
+    close = ";"
     
     add = "+"
     inc = "++"
@@ -39,6 +41,12 @@ Bits {
     
     binops = add | sub | or | and | xor | mult | div | mod
    	unrops = inc | dec | shiftRight | shiftLeft | not
+   
+   Block
+   = divPoint (Statement*) close
+   
+  BlockCall
+  = ident join Expr Block
     
   Expr
   = ident 
@@ -74,7 +82,6 @@ Bits {
     
   ident  (an identifier)
     = letter alnum*
-    
 
   number  (a number)
     = digit* "." digit+  -- fract

@@ -1,5 +1,5 @@
 import type { Interval, Node } from "ohm-js";
-import { GetAsBinary, GetAsCharacter, GetAsUInt } from "./utility";
+import { GetAsBinary, GetAsCharacter, GetAsUInt, UintToBoolArray } from "./utility";
 import type { Environment } from "./environment";
 import type { Env } from "bun";
 
@@ -13,6 +13,8 @@ enum NodeType {
     UnaryOp,
     BinaryOp,
     Call,
+    If,
+    While,
 }
 enum Ops{
     Not,
@@ -54,19 +56,7 @@ class bitValue {
     
     ///Sets value to boolean array. if length>0, value will clamp at length. otherwise, will be minimum size with no padded 0's.
     SetByUint(value: number, length: number = 0){
-        this.val = value ? [] : [false]
-        let b = value
-        if(length >0){
-            for(let i = 0;i<length;i++) {
-                this.val.push((b & 1) === 1)
-                b >>= 1
-            }
-        }else{
-            while(b) {
-                this.val.push((b & 1) === 1)
-                b >>= 1
-            }
-        }
+        this.val = UintToBoolArray(value, length);
     }
     AsChar(): string{
         return GetAsCharacter(this.val)
@@ -88,7 +78,17 @@ class bitValue {
         }
         throw new Error("can't get bit value outside of pointer length." + i + " and " + this.val.length)
     }
-
+    DeltaUnsigned(delta: number){
+        let x = this.AsUint();
+        x += delta;
+        let b = UintToBoolArray(x, this.val.length);
+        for(let i = 0;i<this.val.length;i++){
+            let bx = b[i]
+            if(bx != undefined){
+                this.val[i] = bx
+            }
+        }
+    }
 }
 
 class pointer {
@@ -114,6 +114,17 @@ class pointer {
     }
     AsBin():string{
         return GetAsBinary(this.value())
+    }
+    DeltaUnsigned(delta: number){
+        let x = this.AsUInt();
+        x += delta;
+        let b = UintToBoolArray(x, this.length);
+        for(let i = 0;i<this.length;i++){
+            let bx = b[i]
+            if(bx != undefined){
+                this.env.SetBit(this.start+i,bx)
+            }
+        }
     }
 }
 
