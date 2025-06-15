@@ -49,11 +49,11 @@ Bits {
   = ident join Expr Block
     
   Expr
-  = ident 
-  | Range
-  | literal
-  | UnrOp
+  = UnrOp
   | BinOp
+  | Range
+  | ident
+  | literal
     
  Assign
  	= ident assign Expr

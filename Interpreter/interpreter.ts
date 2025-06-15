@@ -266,7 +266,14 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
 }
 
 function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environment){
-    throw new Error("Not implemented yet");
+    switch(op){
+        case Ops.And:
+            //get bit safe (return 0 when out of range)
+            //set bit to new bitvalue and put on stack.
+        //break
+        default:
+            throw new Error("binary op "+Ops[op]+ "not (yet?) supported")
+    }
     //todo: create an interface that allows pointers and values to avoid a nested nightmare of if/elses for getting/setting bits. 
     return undefined
 }

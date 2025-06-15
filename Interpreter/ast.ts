@@ -53,6 +53,12 @@ class treeNode {
     AsUInt(): number{
         throw new Error("uh oh")
     }
+    GetBit(int: number):boolean{
+        throw new Error("uh oh")
+    }
+    SetBit(i: number, value: boolean): void{
+        throw new Error("uh oh")
+    }
 }
 
 class bitValue {
@@ -81,6 +87,12 @@ class bitValue {
             }
         }
         throw new Error("can't get bit value outside of pointer length." + i + " and " + this.val.length)
+    }
+    SetBit(i: number, value: boolean): void{
+        if(i>=0 && i < this.val.length){
+            this.val[i] = value
+        }
+        throw Error("cant set bit out of range.")
     }
     DeltaUnsigned(delta: number){
         let x = this.AsUInt();
@@ -118,6 +130,12 @@ class pointer {
     }
     AsBin():string{
         return GetAsBinary(this.value())
+    }
+    GetBit(i:number):boolean{
+        return this.env.GetBit(this.start+i);
+    }
+    SetBit(i: number, value: boolean):void{
+        this.env.SetBit(this.start+i,value)
     }
     DeltaUnsigned(delta: number){
         let x = this.AsUInt();
