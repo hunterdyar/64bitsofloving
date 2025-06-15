@@ -53,7 +53,8 @@ Bits {
   | BinOp
   | Range
   | ident
-  | literal
+  | numLiteral
+  | charLiteral
     
  Assign
  	= ident assign Expr
@@ -77,8 +78,11 @@ Bits {
    Range 
    = startPoint Expr divPoint Expr? endPoint
   
-  literal
+  numLiteral
   = number numSuffix?
+
+  charLiteral
+  = "'" any "'"
     
   ident  (an identifier)
     = letter alnum*

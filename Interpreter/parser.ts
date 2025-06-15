@@ -104,9 +104,15 @@ s.addOperation("toTree",{
     },
     //@ts-ignore
     
-    literal(number, suffix){
+    numLiteral(number, suffix){
         //combine intervals.
         return new treeNode(NodeType.Literal, this,[number.sourceString,suffix.sourceString])
+    },
+    charLiteral(a,c,b){
+        var n = c.sourceString.charCodeAt(0)
+        console.log(c.sourceString,"to",n)
+        return new treeNode(NodeType.Literal, this,[n,""])
+
     },
     ident(source, _){
         return new treeNode(NodeType.Identifier, this, [])
