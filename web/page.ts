@@ -4,7 +4,7 @@ import {EditorState, StateField, StateEffect, RangeSet} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
 import { Decoration, type DecorationSet } from "@codemirror/view";
-import { Environment } from "../interpreter/environment";
+import { Environment, ProgramData } from "../interpreter/environment";
 import type { treeNode } from "../interpreter/ast";
 
 const localStorageKey = "64BitsOrLessEditorValue"
@@ -17,6 +17,8 @@ const compileButton = document.getElementById("compile");
 const textOut = document.getElementById("textout");
 const imageOut = document.getElementById("imageout") as HTMLCanvasElement
 const imageOutCTX = imageOut?.getContext("2d");
+const byteCount = document.getElementById("byteCount");
+const tokenCount = document.getElementById("tokenCount");
 const bits: HTMLDivElement[] = []
 if(!starting){
     starting = `a = [0:8]
@@ -118,6 +120,7 @@ env.onchange = onBitChanged;
 env.onStep = onStep;
 env.onOutput = onOutput;
 env.onPixel = onPixel;
+env.programData.onChange = onProgramDataChange;
 
 function onBitChanged(bit: number, val: boolean){
     var b = bits[bit]
@@ -190,6 +193,13 @@ function colorLookup(c:number){
       return "magenta"
   }
 }
+function onProgramDataChange(p: ProgramData){
+  //@ts-ignore
+  tokenCount.innerText = p.tokenCount;
+  //@ts-ignore
+  byteCount.innerText = p.bytes
+}
+
 
 
 function run(){

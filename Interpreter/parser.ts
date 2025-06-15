@@ -7,6 +7,7 @@ import { Environment } from "./environment";
 const g = grammar(bitsGrammar);
 const s = g.createSemantics()
 let env: Environment = undefined
+let tokenCount = 0
 
 s.addOperation("toTreeArray",{
     ArgList(first, sep, exprs){
@@ -26,14 +27,17 @@ s.addOperation("toTree",{
     Program(s) {return new treeNode(NodeType.Program, "program", s.children.map(x=>x.toTree()))},
     //@ts-ignore
     Assign(left,w,expr) {
+        tokenCount++
          return new treeNode(NodeType.Assign,this, [left.toTree(), expr.toTree()])
     },
     Range(open, start, colon, end,close){
+        tokenCount+=2
         let s = Number(start.sourceString)
         let e = Number(end.sourceString)
         return new treeNode(NodeType.Range, this,[new pointer(s,e, env)])
     },
     UnrOp(op,expr){
+        tokenCount++
         let uop: Ops 
         switch(op.sourceString){
             case "~":
@@ -58,6 +62,7 @@ s.addOperation("toTree",{
         return new treeNode(NodeType.UnaryOp, this, [uop, expr.toTree()])
     },
     BinOp(left,op,right){
+        tokenCount ++
         let bop: Ops = Ops.And
         switch(op.sourceString){
             case "|":
@@ -80,6 +85,7 @@ s.addOperation("toTree",{
 
     },
     BinAssign(left, op, assign, right){
+        tokenCount ++
         let bin = this.BinOp(left, op, right);
         console.log("binassign", left, bin)
         return new treeNode(NodeType.Assign,this, [left.toTree(), bin])
@@ -101,37 +107,43 @@ s.addOperation("toTree",{
     },
     Call(ident,join,arglist){
         //arglist returns an array.
+        tokenCount++
         return new treeNode(NodeType.Call, this, [ident.toTree(),arglist.toTreeArray()])
     },
     //@ts-ignore
     
     numLiteral(number, suffix){
         //combine intervals.
+        tokenCount++
         return new treeNode(NodeType.Literal, this,[number.sourceString,suffix.sourceString])
     },
     charLiteral(a,c,b){
+        tokenCount++
         var n = c.sourceString.charCodeAt(0)
         return new treeNode(NodeType.Literal, this,[n,""])
-
     },
     ident(source, _){
+        tokenCount++
         return new treeNode(NodeType.Identifier, this, [])
-    }
+    },
 });
 
 
 
 //environment object todo
 function Parse(input: string, e: Environment): treeNode{
+    tokenCount = 0
     env = e;
     performance.mark("parse-start");
     let lex = g.match(input);
     if(lex.succeeded())
     {
         let ast = s(lex).toTree();
+        e.programData.SetParseData(input.length, tokenCount)
         performance.mark("parse-end");
         return ast;
     }else{
+        e.programData.SetParseData(input.length, tokenCount)
         throw new SyntaxError(lex.message)
     }
 }

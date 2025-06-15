@@ -1,7 +1,35 @@
+import type { NumberLiteralType } from "typescript";
 import { bitValue, pointer, treeNode, type runtimeType } from "./ast";
 import { EvaluateNode } from "./interpreter";
 import { Parse } from "./parser";
 import { UintToBoolArray } from "./utility";
+class ProgramData{
+    bytes: number
+    tokenCount: number
+    compiled: boolean
+
+    onChange: ((p:ProgramData) => void)
+    constructor(){
+        this.onChange = (x)=>{}
+        this.bytes = 0
+        this.tokenCount = 0
+        this.compiled = false
+    }
+
+    SetBytes(b: number){
+        this.bytes = b;
+        this.onChange(this);
+    }
+    SetTokenCount(t: number){
+        this.tokenCount = t;
+        this.onChange(this)
+    }
+    SetParseData(b: number, t: number){
+        this.bytes = b;
+        this.tokenCount = t;
+        this.onChange(this)
+    }
+}
 class Environment{
     memory: boolean[]
     stack: runtimeType[]
@@ -14,6 +42,7 @@ class Environment{
     globals: {[id: string] : pointer}
     output: string
     dispay: number[]
+    programData: ProgramData = new ProgramData()
     displaySize: number
     onchange: ((bit:number,value:boolean) => void)
     onStep:  ((last:treeNode | undefined) => void )
@@ -25,7 +54,7 @@ class Environment{
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
         this.stack = []
-
+        // this.programData.SetBytes(0)
         this.onchange = (a,b)=>{}
         this.onPixel = (a,b)=>{}
         this.onStep = (a)=>{}
@@ -43,7 +72,6 @@ class Environment{
         if(!this.cleared){
             this.clear()
         }
-
         this.compiled = false;
         //try... report error.
         try{
@@ -52,11 +80,13 @@ class Environment{
             this.program = EvaluateNode(root, this);
             this.compiled = true;
         }catch (e){
+            
             if(e instanceof Error){
                 this.error = e;
             }
             console.error(this.error)
         }
+        this.programData.SetBytes(code.length)
     }
 
     RunToEnd(){
@@ -87,6 +117,8 @@ class Environment{
     }
 
     clear(){
+        this.bytes = 0
+        this.tokenCount = 0
         this.memory = new Array<boolean>(64)    
         this.dispay = new Array<number>(32*32)
         this.stack = []
@@ -216,4 +248,4 @@ class Environment{
     }
 }
 
-export {Environment}
+export {Environment, ProgramData}
