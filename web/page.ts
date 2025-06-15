@@ -31,7 +31,9 @@ function loadbits(){
     }
     for(var i=0;i<64;i++){
         var bit = document.createElement("div");
-        bit.className = "bit"
+        let row = Math.floor(i/16)
+        let col = Math.floor((i%16)/4)
+        bit.className = "bit r"+row+" c"+col
         bit.id = "bit"+i;
         bitContainer.appendChild(bit);
         bit.innerText = "0";

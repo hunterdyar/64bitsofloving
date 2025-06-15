@@ -111,13 +111,11 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             yield node
             break;
         case NodeType.While:
-            console.log("start while");
             yield* EvaluateNode(node.children[0], env)
             let whilebreakcounter = 0
             while(Truthy(env.pop())){
                 //do body
                 for(let i = 0; i<node.children[1].length;i++){
-                    console.log("in while:",NodeType[node.children[1][i].type])
                     yield* EvaluateNode(node.children[1][i],env)
                 }
                 //back to top. now reevaluate node.
@@ -136,6 +134,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             }
             yield* EvaluateNode(node.children[0], env)
             let forbreakcounter = 0
+            //while
             while(Truthy(env.pop())){
                 
                 //do body
@@ -154,7 +153,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 var x = DoUnary(Ops.Dec, env.pop(),env);
                 env.push(x)
             }
-            //yield node
+            yield node
             break
         case NodeType.If:
                 yield* EvaluateNode(node.children[0], env)
@@ -261,7 +260,6 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 if(x == undefined || y == undefined || c == undefined){
                     throw console.error(("Bad argument"));
                 }
-                console.log("set pixel ",x,y,y*(env.displaySize)+x)
                 env.SetPixel(y*(env.displaySize)+x,c)
             }
     }
