@@ -11,4 +11,9 @@ while.a8:
 
 
 //todo:
-a8 = ~'a'
+allow constants to say how large they are, pad zeros and all that.
+
+a8 = 5  --- SHOULD do this implicitly, but it doesn't, since
+a8 = ~5 --- the unary ~ doesn't know about the a8 yet, and our parser doesn't propagate any sort of size context into the calls. 
+a8 = 3u:8
+
