@@ -160,10 +160,14 @@ function Parse(input: string, e: Environment): treeNode{
     {
         let ast = s(lex).toTree();
         e.programData.SetParseData(input.length, tokenCount)
+        e.programData.setError(false)
         performance.mark("parse-end");
         return ast;
     }else{
         e.programData.SetParseData(input.length, tokenCount)
+        //not setting error data here because eval has another thing to run.
+        //uhg should just move this function into environment, really.
+        //e.programData.setError(true, new SyntaxError(lex.message))
         throw new SyntaxError(lex.message)
     }
 }

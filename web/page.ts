@@ -19,6 +19,8 @@ const imageOut = document.getElementById("imageout") as HTMLCanvasElement
 const imageOutCTX = imageOut?.getContext("2d");
 const byteCount = document.getElementById("byteCount");
 const tokenCount = document.getElementById("tokenCount");
+const errorBox = document.getElementById("errorBox");
+
 const bits: HTMLDivElement[] = []
 if(!starting){
     starting = `a = [0:8]
@@ -198,6 +200,15 @@ function onProgramDataChange(p: ProgramData){
   tokenCount.innerText = p.tokenCount;
   //@ts-ignore
   byteCount.innerText = p.bytes
+  if(p.hasError){
+    //@ts-ignore
+    errorBox.style.display = "inline"
+    //@ts-ignore
+    errorBox.innerText = p.error?.message
+  }else{
+    //@ts-ignore
+    errorBox.style.display = "none"
+  }
 }
 
 

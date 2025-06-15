@@ -7,23 +7,17 @@ class ProgramData{
     bytes: number
     tokenCount: number
     compiled: boolean
-
+    hasError: boolean
+    error: Error | undefined
     onChange: ((p:ProgramData) => void)
     constructor(){
         this.onChange = (x)=>{}
         this.bytes = 0
         this.tokenCount = 0
         this.compiled = false
+        this.hasError = false
     }
 
-    SetBytes(b: number){
-        this.bytes = b;
-        this.onChange(this);
-    }
-    SetTokenCount(t: number){
-        this.tokenCount = t;
-        this.onChange(this)
-    }
     SetParseData(b: number, t: number){
         this.bytes = b;
         this.tokenCount = t;
@@ -34,6 +28,11 @@ class ProgramData{
         this.tokenCount = 0
         this.compiled = false
     }
+    setError(hasError: boolean, error: Error | undefined = undefined){
+        this.hasError = hasError
+        this.error = error
+        this.onChange(this)
+    }
 }
 class Environment{
     memory: boolean[]
@@ -43,7 +42,6 @@ class Environment{
     compiled: boolean
     cleared: boolean
     lastExecuted: treeNode | undefined
-    error: Error | undefined
     globals: {[id: string] : pointer}
     output: string
     dispay: number[]
@@ -80,18 +78,15 @@ class Environment{
         this.compiled = false;
         //try... report error.
         try{
-            this.error = undefined
             let root = Parse(code, this)
             this.program = EvaluateNode(root, this);
             this.compiled = true;
         }catch (e){
             
             if(e instanceof Error){
-                this.error = e;
+                this.programData.setError(true, e)
             }
-            console.error(this.error)
         }
-        this.programData.SetBytes(code.length)
     }
 
     RunToEnd(){
