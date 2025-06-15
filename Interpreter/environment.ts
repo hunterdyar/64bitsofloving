@@ -141,8 +141,11 @@ class Environment{
         for(let i = 0;i<loc.length;i++){
             var bit = val.GetBit(i)
             var bitloc = loc.start+i
-            this.memory[bitloc] = bit;
-            this.onchange(bitloc, bit)
+            var p = this.memory[bitloc]
+            if(p != bit){
+                this.memory[bitloc] = bit;
+                this.onchange(bitloc, bit)
+            }
         }
     }
 
@@ -161,8 +164,11 @@ class Environment{
         if(bit < 0 || bit >64){
             throw Error("can't set bit, out of range.");
         }
-        this.memory[bit] = value
-        this.onchange(bit,value)
+        let p = this.memory[bit]
+        if(value != p){
+            this.memory[bit] = value
+            this.onchange(bit,value)
+        }
     }
     GetBit(bit:number):boolean{
         let b = this.memory[bit]

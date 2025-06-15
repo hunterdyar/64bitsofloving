@@ -17,7 +17,7 @@ const compileButton = document.getElementById("compile");
 const textOut = document.getElementById("textout");
 const imageOut = document.getElementById("imageout") as HTMLCanvasElement
 const imageOutCTX = imageOut?.getContext("2d");
-
+const bits: HTMLDivElement[] = []
 if(!starting){
     starting = `a = [0:8]
 a = 200
@@ -33,10 +33,15 @@ function loadbits(){
         var bit = document.createElement("div");
         let row = Math.floor(i/16)
         let col = Math.floor((i%16)/4)
-        bit.className = "bit r"+row+" c"+col
-        bit.id = "bit"+i;
+        bit.className = "bitbox r"+row+" c"+col
         bitContainer.appendChild(bit);
-        bit.innerText = "0";
+
+        let bitdot = document.createElement("div");
+        bitdot.id = "bit"+i;
+        bitdot.className = "bit"
+        bitdot.innerText = "0";
+        bit.appendChild(bitdot)
+        bits.push(bitdot)
     }
 }
 loadbits();
@@ -115,7 +120,7 @@ env.onOutput = onOutput;
 env.onPixel = onPixel;
 
 function onBitChanged(bit: number, val: boolean){
-    var b = bitContainer?.children[bit]
+    var b = bits[bit]
     if(b){
         b.innerHTML = val ? "1" : "0";
         b.classList = val ? "bit filled" : "bit empty"

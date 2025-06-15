@@ -84,7 +84,8 @@
             grid-template-columns: repeat(16, 1fr);
             grid-template-rows: repeat(4, 1fr);
             overflow: hidden;
-        }
+            border: 1px solid black;
+            }
 
            .bit{
             width: 100%;
@@ -94,6 +95,8 @@
             border: 1px solid black;
             text-align: center;
            }
+
+
            .filled{
             background-color: darkblue;
             color: white;
@@ -106,19 +109,25 @@
             height: 100%;
            }
 
-           /* grid colors
-           oops overridden by onchange.
-           todo:background and foreground elements
-           .r0{
-            color: yellowgreen;
+           .r0.c1,.r2.c1,.r0.c3,.r2.c3{
+            background-color: #E1EAEB;
            }
-           .r0 .r2{
-            border-color: aliceblue;
-            color: red
+
+           .r0.c0,.r2.c0,.r0.c2,.r2.c2{
+            background-color: #ccebeb;
            }
-           #bit.r1 #bit.r3 {
-            border-color: bisque;
-           } */
+
+           .r1.c1,.r3.c1,.r1.c3,.r3.c3{
+            background-color: #fbd2d2;
+           }
+
+           .r1.c0,.r3.c0,.r1.c2,.r3.c2{
+            background-color: #F2D9D9;
+           }
+           .bit{
+            opacity: 0.5;
+           }
+           
         </style>
     </head>
 
