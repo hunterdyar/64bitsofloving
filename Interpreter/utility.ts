@@ -30,6 +30,17 @@ function UintToBoolArray(number: number, length: number): boolean[]{
     }
     return val;
 }
+//utility to reverse subsection of an array
+function Reverse(arr: Array<boolean>, start:number, end:number) {
+    while (start < end) {
+        let temp = arr[start];
+        //@ts-ignore
+        arr[start] = arr[end];
+        //@ts-ignore
+        arr[end] = temp;
+        start++;
+        end--;
+    }
+}
 
-
-export{GetAsCharacter, GetAsUInt, GetAsFloat, GetAsBinary, UintToBoolArray}
+export{GetAsCharacter, GetAsUInt, GetAsFloat, GetAsBinary, UintToBoolArray, Reverse}

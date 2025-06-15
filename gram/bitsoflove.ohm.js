@@ -4,11 +4,11 @@ Bits {
     = Statement*
     
   Statement
-    = Assign
+    = UnrOp
+    | BinOp
+    | Assign
     | BlockCall
     | Call
-    | UnrOp
-    | BinOp
     | BinAssign
 
     startPoint = "["
@@ -24,7 +24,9 @@ Bits {
     sub = "-"
     dec = "--"
     shiftRight = ">>"
+    cycleRight = ">>>"
     shiftLeft = "<<"
+    cycleLeft = "<<<"
     or = "|"
     and = "&"
     xor = "^"
@@ -39,8 +41,8 @@ Bits {
     float = "f"
     numSuffix = signed | unsigned | float
     
-    binops = add | sub | or | and | xor | mult | div | mod
-   	unrops = inc | dec | shiftRight | shiftLeft | not
+    binops = add | sub | or | and | xor | mult | div | mod | cycleRight | shiftRight | cycleLeft | shiftLeft
+   	unrops = inc | dec | not
    
    Block
    = divPoint (Statement*) close

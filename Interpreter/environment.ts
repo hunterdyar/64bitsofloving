@@ -29,6 +29,11 @@ class ProgramData{
         this.tokenCount = t;
         this.onChange(this)
     }
+    clear(){
+        this.bytes = 0
+        this.tokenCount = 0
+        this.compiled = false
+    }
 }
 class Environment{
     memory: boolean[]
@@ -108,7 +113,8 @@ class Environment{
                 this.onStep(this.lastExecuted)
             }
             else{
-            console.log("Can't step, need to initiate first.")
+                console.log("Can't step, need to initiate first.")
+                this.running = false
             }
         }else{
             console.log("Undefined Program! compile");
@@ -117,8 +123,7 @@ class Environment{
     }
 
     clear(){
-        this.bytes = 0
-        this.tokenCount = 0
+        this.programData.clear()
         this.memory = new Array<boolean>(64)    
         this.dispay = new Array<number>(32*32)
         this.stack = []

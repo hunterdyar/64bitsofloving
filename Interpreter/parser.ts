@@ -46,9 +46,15 @@ s.addOperation("toTree",{
             case "<<":
                 uop = Ops.ShiftLeft
                break
+            case "<<<":
+                uop = Ops.CycleLeft
+                break
             case ">>":
                 uop = Ops.ShiftRight
                break
+            case ">>>":
+                uop = Ops.CycleRight
+                break
             case "--":
                 uop = Ops.Dec
                break
@@ -80,6 +86,20 @@ s.addOperation("toTree",{
             case "&":
                 bop = Ops.And;
                 break
+            case ">>":
+                bop = Ops.ShiftRight
+                break
+            case ">>>":
+                bop = Ops.CycleRight
+                break;
+                break
+            case "<<":
+                bop = Ops.ShiftLeft
+                break
+            case "<<<":
+                bop = Ops.CycleLeft
+                break;
+
         }
         return new treeNode(NodeType.BinaryOp, this, [bop, left.toTree(), right.toTree()])
 

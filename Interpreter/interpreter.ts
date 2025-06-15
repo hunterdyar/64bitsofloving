@@ -1,5 +1,6 @@
 import { NodeType, pointer, bitValue, treeNode, Ops, type runtimeType } from "./ast";
 import {Environment} from "./environment"
+import { Reverse } from "./utility";
 
 
 function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
@@ -304,6 +305,70 @@ function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environme
             }
             return left;
         break
+        case Ops.ShiftRight:
+            let timesRight = right.AsUInt()
+            if(timesRight< 0)
+            {
+                throw new Error("invalid operand for CycleRight")
+            }
+            for(var i = 0;i<timesRight;i++){
+                left = DoUnary(Ops.ShiftRight, left, env)
+            }
+            break
+        case Ops.ShiftLeft:
+            let timesLeft = right.AsUInt()
+            if(timesLeft< 0)
+            {
+                throw new Error("invalid operand for CycleRight")
+            }
+            for(var i = 0;i<timesLeft;i++){
+                left = DoUnary(Ops.ShiftLeft, left, env)
+            }
+            break
+        case Ops.CycleLeft:
+            let cltimes = right.AsUInt();
+            cltimes = cltimes % left.length;
+  
+            let temparr = left.GetDataCopy(); 
+            // Reverse the entire array
+            temparr.reverse();
+        
+            // Reverse the first d elements
+            Reverse(temparr, 0, cltimes - 1);
+
+            // Reverse the remaining n-d elements
+            Reverse(temparr, cltimes, left.length - 1);
+
+            for(var i = 0;i<left.length;i++){
+                let b = temparr[i]
+                if(b != undefined){
+                    left.SetBit(i, b)
+                }
+            }
+            break
+        case Ops.CycleRight:
+            let crtimes = right.AsUInt();
+            crtimes = crtimes % left.length;
+  
+            let temparr2 = left.GetDataCopy(); 
+    
+        
+            // Reverse the first d elements
+            Reverse(temparr2, 0, crtimes - 1);
+
+            // Reverse the remaining n-d elements
+            Reverse(temparr2, crtimes, left.length - 1);
+
+            // Reverse the entire array
+            temparr2.reverse();
+
+            for(var i = 0;i<left.length;i++){
+                let b = temparr2[i]
+                if(b != undefined){
+                    left.SetBit(i, b)
+                }
+            }
+            break
         default:
             throw new Error("binary op "+Ops[op]+ " not (yet?) supported")
     }
@@ -322,23 +387,10 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                 }
                 return operand
                 break
-            if(operand instanceof pointer){
-                for(let i = operand.start; i<operand.start+operand.length;i++){
-                    var b = env.GetBit(i);
-                    env.SetBit(i, !b)
-                }
-                return operand
-            }else if(operand instanceof bitValue){
-                for(let i  = 0;i<operand.val.length;i++){
-                    operand.val[i] = !operand.val[i];
-                }
-                return operand
-            }else if(operand instanceof treeNode){
-                throw Error("uh?");
-            }
-            break
         default:
             throw Error("unexpected op: "+op);
+            //so we got rid of shiftLeft and shiftright unary ops, but the binary implementation just calls these so im not refactoring them over yet.
+            //because i dont feel like it right now. (e.g. not convinced we wont have both when i implement grouping to disambiguate)
         case Ops.ShiftLeft:
             if(operand instanceof pointer){
                 for(let i = operand.start+operand.length-1; i>=operand.start+1;i--){

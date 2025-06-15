@@ -20,7 +20,9 @@ enum NodeType {
 enum Ops{
     Not,
     ShiftRight,
+    CycleRight,
     ShiftLeft,
+    CycleLeft,
     Or,
     And,
     Xor,
@@ -58,6 +60,9 @@ class treeNode {
         throw new Error("uh oh")
     }
     SetBit(i: number, value: boolean): void{
+        throw new Error("uh oh")
+    }
+    GetDataCopy():boolean[]{
         throw new Error("uh oh")
     }
 }
@@ -121,6 +126,10 @@ class bitValue {
             }
         }
     }
+    GetDataCopy():boolean[]{
+        //do we need to clone this? 
+        return this.val
+    }
 }
 
 class pointer {
@@ -166,6 +175,9 @@ class pointer {
                 this.env.SetBit(this.start+i,bx)
             }
         }
+    }
+    GetDataCopy():boolean[]{
+        return this.env.memory.slice(this.start,this.length);
     }
 }
 
