@@ -84,10 +84,8 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
         case NodeType.UnaryOp:
             yield* EvaluateNode(node.children[1], env)
             let operand = env.pop();
-            console.log("doin un",operand?.GetBit(0))
             let unary = DoUnary(node.children[0], operand, env)
             env.push(unary);
-            console.log("done un",operand?.GetBit(0))
             yield node
             break;
         case NodeType.BinaryOp:
@@ -202,7 +200,6 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 env.Print(out.AsChar())
             }
             
-           console.log("put char")
         break;
         case "pi":
         case "print":

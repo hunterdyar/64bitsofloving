@@ -111,7 +111,6 @@ s.addOperation("toTree",{
     },
     charLiteral(a,c,b){
         var n = c.sourceString.charCodeAt(0)
-        console.log(c.sourceString,"to",n)
         return new treeNode(NodeType.Literal, this,[n,""])
 
     },
