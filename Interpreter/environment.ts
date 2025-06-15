@@ -20,7 +20,7 @@ class Environment{
     onPixel: ((x: number, color: number) => void)
     onOutput: (s: string) => void
     constructor(){
-        this.memory = new Array<boolean>(64)
+        this.memory = new Array<boolean>(64+16)//64 bit heap, 16 bit stack.
         this.displaySize = 16
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
@@ -89,6 +89,7 @@ class Environment{
     clear(){
         this.memory = new Array<boolean>(64)    
         this.dispay = new Array<number>(32*32)
+        this.stack = []
         this.output = ""
 
         for(let i = 0;i<this.memory.length;i++){
@@ -106,6 +107,9 @@ class Environment{
 
     push(item: runtimeType){
         this.stack.push(item)
+        if(this.stack.length>1){
+            throw Error("stack overflow!")
+        }
     }
     pop(): runtimeType{
         if(this.stack.length > 0){
