@@ -6,6 +6,7 @@ import { Environment } from "./environment";
 
 const g = grammar(bitsGrammar);
 const s = g.createSemantics()
+let env: Environment = undefined
 
 s.addOperation("toTreeArray",{
     ArgList(first, sep, exprs){
@@ -30,7 +31,7 @@ s.addOperation("toTree",{
     Range(open, start, colon, end,close){
         let s = Number(start.sourceString)
         let e = Number(end.sourceString)
-        return new treeNode(NodeType.Range, this,[new pointer(s,e)])
+        return new treeNode(NodeType.Range, this,[new pointer(s,e, env)])
     },
     UnrOp(op,expr){
         let uop: Ops 
@@ -122,7 +123,8 @@ s.addOperation("toTree",{
 
 
 //environment object todo
-function Parse(input: string): treeNode{
+function Parse(input: string, e: Environment): treeNode{
+    env = e;
     performance.mark("parse-start");
     let lex = g.match(input);
     if(lex.succeeded())

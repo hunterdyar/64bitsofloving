@@ -64,12 +64,12 @@ class treeNode {
 
 class bitValue {
     val: boolean[] = new Array<boolean>
-    length: number = 0
+    length: number = this.val.length
 
     ///Sets value to boolean array. if length>0, value will clamp at length. otherwise, will be minimum size with no padded 0's.
     SetByUint(value: number, length: number = 0){
         this.val = UintToBoolArray(value, length);
-        this.length = length
+        this.length = this.val.length
     }
     AsChar(): string{
         return GetAsCharacter(this.val)
@@ -105,7 +105,9 @@ class bitValue {
     SetBit(i: number, value: boolean): void{
         if(i>=0 && i < this.val.length){
             this.val[i] = value
+            return
         }
+
         throw Error("cant set bit out of range.")
     }
     DeltaUnsigned(delta: number){

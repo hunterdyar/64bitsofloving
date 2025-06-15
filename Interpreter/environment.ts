@@ -48,7 +48,7 @@ class Environment{
         //try... report error.
         try{
             this.error = undefined
-            let root = Parse(code)
+            let root = Parse(code, this)
             this.program = EvaluateNode(root, this);
             this.compiled = true;
         }catch (e){

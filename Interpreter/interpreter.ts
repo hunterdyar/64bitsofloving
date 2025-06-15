@@ -84,8 +84,10 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
         case NodeType.UnaryOp:
             yield* EvaluateNode(node.children[1], env)
             let operand = env.pop();
+            console.log("doin un",operand?.GetBit(0))
             let unary = DoUnary(node.children[0], operand, env)
             env.push(unary);
+            console.log("done un",operand?.GetBit(0))
             yield node
             break;
         case NodeType.BinaryOp:
@@ -318,6 +320,11 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
     }
     switch (op){
         case Ops.Not:
+            for(let i  = 0;i<operand.length;i++){
+                    operand.SetBit(i, !operand.GetBit(i));
+                }
+                return operand
+                break
             if(operand instanceof pointer){
                 for(let i = operand.start; i<operand.start+operand.length;i++){
                     var b = env.GetBit(i);
