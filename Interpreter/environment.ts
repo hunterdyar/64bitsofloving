@@ -106,10 +106,11 @@ class Environment{
     }
 
     push(item: runtimeType){
-        this.stack.push(item)
         if(this.stack.length>1){
-            throw Error("stack overflow!")
+           this.stack.pop();
+           console.log("cleaning stack");
         }
+        this.stack.push(item)
     }
     pop(): runtimeType{
         if(this.stack.length > 0){
@@ -180,6 +181,13 @@ class Environment{
             return b;
         }
         throw new Error("bit "+bit+" is out of range.")
+    }
+    GetBitSafe(bit:number):boolean{
+        let b = this.memory[bit]
+        if(b != undefined){
+            return b;
+        }
+        return false
     }
     
     //todo: onchange

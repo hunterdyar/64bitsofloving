@@ -57,7 +57,7 @@ s.addOperation("toTree",{
         return new treeNode(NodeType.UnaryOp, this, [uop, expr.toTree()])
     },
     BinOp(left,op,right){
-        let bop: Ops
+        let bop: Ops = Ops.And
         switch(op.sourceString){
             case "|":
                 bop = Ops.Or;
@@ -74,9 +74,8 @@ s.addOperation("toTree",{
             case "&":
                 bop = Ops.And;
                 break
-
         }
-        return new treeNode(NodeType.BinaryOp, this, [Ops.Minus, left.toTree(), right.toTree()])
+        return new treeNode(NodeType.BinaryOp, this, [bop, left.toTree(), right.toTree()])
 
     },
     BinAssign(left, op, assign, right){

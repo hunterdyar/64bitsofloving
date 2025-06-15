@@ -42,13 +42,14 @@ class treeNode {
     source: string
     children: any[]
     sourceInterval: Interval 
-
+    length: number
     constructor(ns: NodeType, node: Node, children: any[])
     {
         this.type = ns
         this.source = node.sourceString
         this.children = children
         this.sourceInterval = node.source
+        this.length = 0
     }
     AsUInt(): number{
         throw new Error("uh oh")
@@ -63,10 +64,12 @@ class treeNode {
 
 class bitValue {
     val: boolean[] = new Array<boolean>
-    
+    length: number = 0
+
     ///Sets value to boolean array. if length>0, value will clamp at length. otherwise, will be minimum size with no padded 0's.
     SetByUint(value: number, length: number = 0){
         this.val = UintToBoolArray(value, length);
+        this.length = length
     }
     AsChar(): string{
         return GetAsCharacter(this.val)
@@ -87,6 +90,17 @@ class bitValue {
             }
         }
         throw new Error("can't get bit value outside of pointer length." + i + " and " + this.val.length)
+    }
+    GetBitSafe(i: number): boolean{
+        if(i>=0 || i<this.val.length){
+            let r = this.val[i];
+            if(r != undefined){
+                return r;
+            }else{
+                return false
+            }
+        }
+        return false;
     }
     SetBit(i: number, value: boolean): void{
         if(i>=0 && i < this.val.length){
@@ -133,6 +147,9 @@ class pointer {
     }
     GetBit(i:number):boolean{
         return this.env.GetBit(this.start+i);
+    }
+     GetBitSafe(i:number):boolean{
+        return this.env.GetBitSafe(this.start+i);
     }
     SetBit(i: number, value: boolean):void{
         this.env.SetBit(this.start+i,value)

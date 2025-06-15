@@ -89,7 +89,6 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             yield node
             break;
         case NodeType.BinaryOp:
-            console.log("evaluate bin op");
             yield* EvaluateNode(node.children[1], env)
             let left = env.pop();
             yield* EvaluateNode(node.children[2], env)
@@ -175,7 +174,6 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
     }
 }
 function Truthy(element: runtimeType): boolean{
-   
     if(element instanceof pointer){
         return element.AsUInt() != 0
     }
@@ -266,13 +264,49 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
 }
 
 function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environment){
+    if(left == undefined){
+        throw Error("uh?");
+    }
+    if(right == undefined){
+        throw Error("uh?");
+    }
     switch(op){
         case Ops.And:
-            //get bit safe (return 0 when out of range)
-            //set bit to new bitvalue and put on stack.
-        //break
+            var l = Math.max(left.length, right.length)
+            for(var i = 0;i<l;i++){
+                left.SetBit(i, left.GetBit(i) && right.GetBit(i))
+            }
+            return left;
+        break
+        case Ops.Or:
+            var l = Math.max(left.length, right.length)
+            for(var i = 0;i<l;i++){
+                left.SetBit(i, left.GetBit(i) || right.GetBit(i))
+            }
+            return left;
+        break
+        case Ops.Xor:
+            var l = Math.max(left.length, right.length)
+            for(var i = 0;i<l;i++){
+                left.SetBit(i, left.GetBit(i) !== right.GetBit(i))
+            }
+            return left;
+        break
+        case Ops.Plus:
+            var l = Math.max(left.length, right.length)
+            var carryin = false;
+            for(var i = 0;i<l;i++){
+                var lb = left.GetBit(i);
+                var rb = right.GetBit(i); 
+                let suma = lb !== rb;
+                let sumb = suma !== carryin
+                carryin = lb && rb || carryin && suma;
+                left.SetBit(i, sumb)
+            }
+            return left;
+        break
         default:
-            throw new Error("binary op "+Ops[op]+ "not (yet?) supported")
+            throw new Error("binary op "+Ops[op]+ " not (yet?) supported")
     }
     //todo: create an interface that allows pointers and values to avoid a nested nightmare of if/elses for getting/setting bits. 
     return undefined
