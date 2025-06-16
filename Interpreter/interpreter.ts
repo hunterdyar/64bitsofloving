@@ -7,30 +7,87 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
     switch(node.type){
         case NodeType.Program:
             for(let i = 0; i<node.children.length;i++){
+                performance.mark("step-root-node")
                 yield* EvaluateNode(node.children[i],env)
             }
             env.running = false
             break
         case NodeType.Range:
             //parsed into a pointer at the AST.
-            env.push(node.children[0])
+            yield* EvaluateNode(node.children[0],env)
+            let s = env.pop()
+            yield* EvaluateNode(node.children[1],env)
+            let l = env.pop()
+            if(s instanceof pointer){
+              //  console.log("p", s.AsUInt().toString())
+                return;
+            }
+            // else if(s instanceof bitValue){
+            //   // console.log("bv", s.AsUInt().toString())
+            // }
+
+            
+                        console.log("this should be 8", l.AsUInt())
+                        console.log("this should be 8", l.AsUInt())
+
+            console.log("eval range", s,s?.AsUInt(), l,l?.AsUInt());
+            if(s == undefined){
+                throw new Error("oopsie, bad thingy in the pointer.")
+            }else if (l == undefined){
+                 throw new Error("oopsie. so length in the range is supposed to be optional but that's not supported yet.")
+            }
+            let p =new pointer(s.AsUInt(),l.AsUInt(), env)
+            env.push(p)
+            console.log("evaluated range to pointer: ",p)
             yield node
             break;
         case NodeType.Identifier:
             var range = env.GetRangeFromIdent(node.source);
+            console.log("evaluating identifier "+node.source, range)
             if(range){
                 env.push(range);
                 yield node
                 return
+            }else{
+                throw new Error("Unknown identifier "+node.source);
             }
-            throw new Error("Unknown identifier "+node.source);
+            break
         case NodeType.Assign:
+            //Assign is two nodes, assignment (pointer = value) and declaration (unseen id = value)
+
             yield* EvaluateNode(node.children[1],env)
             let valueOrRange = env.pop();
-            let pointerNode = node.children[0]?.children[0];
+           
+            //Let's check if we are assigning to an identifier.
+            if(node.children[0].type == NodeType.Identifier){
+                let assigneeString = node.children[0].source
+                console.log("set to identifier", assigneeString)
+                //if it is a range, update or set assignee.
+                if(valueOrRange instanceof pointer){
+                    env.SetOrAssign(assigneeString, valueOrRange)
+                    yield node
+                    return
+                }
+                if(valueOrRange instanceof bitValue){
+                    var assignee = env.GetRangeFromIdent(assigneeString)
+                    if(assignee == undefined){
+                        throw new Error("unknown identifier: "+assigneeString+". To declare variable, declare it to a pointer ([]) before assigning to a value.")
+                    }
+                    env.Set(assignee, valueOrRange)
+                    yield node
+                    return
+                }
+                throw new Error("this case should be handled");
 
-            if(pointerNode instanceof pointer){
-                //convert to pointer.
+            }
+
+            yield* EvaluateNode(node.children[0], env)
+            let pointerNode = env.pop();
+
+            console.log("assign", valueOrRange, " to ", pointerNode)
+           
+           
+            if(pointerNode != undefined){
                 if(pointerNode instanceof pointer){
                     if(valueOrRange instanceof pointer){
                         env.Copy(valueOrRange, pointerNode)
@@ -41,31 +98,11 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                         yield node
                         return
                     }
-                }else{
-                    throw new Error("uh oh!");
                 }
-                return
+                throw new Error("this case should be handled, sorry");
             }
-
-            //todo: move up into that if.
-            let assigneeString = node.children[0].source
-            let assignee = env.GetRangeFromIdent(assigneeString)
             
-            //if it is a range, update or set assignee.
-            if(valueOrRange instanceof pointer){
-                env.SetOrAssign(assigneeString, valueOrRange)
-                yield node
-                return
-            }
-            //if valueOrRange is value, set range to it.
-            if(valueOrRange instanceof bitValue){
-                if(assignee == undefined){
-                    throw new Error("unknown identifier: "+assigneeString+". To declare variable, assign to a range first.")
-                }
-                env.Set(assignee, valueOrRange)
-                yield node
-                return
-            }
+            
             break;
         case NodeType.Literal:
             //[number.sourceString,suffix.sourceString]

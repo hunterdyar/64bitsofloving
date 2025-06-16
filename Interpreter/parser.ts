@@ -32,9 +32,10 @@ s.addOperation("toTree",{
     },
     Range(open, start, colon, end,close){
         tokenCount+=2
-        let s = Number(start.sourceString)
-        let e = Number(end.sourceString)
-        return new treeNode(NodeType.Range, this,[new pointer(s,e, env)])
+        let s = start.toTree()
+        let e = end.child(0).toTree()
+        console.log("range", s,e)
+        return new treeNode(NodeType.Range, this,[s,e])
     },
     UnrOp(op,expr){
         tokenCount++
@@ -145,7 +146,7 @@ s.addOperation("toTree",{
     ident(source, _){
         tokenCount++
         return new treeNode(NodeType.Identifier, this, [])
-    },
+    }
 });
 
 

@@ -44,6 +44,7 @@ class treeNode {
     source: string
     children: any[]
     sourceInterval: Interval 
+    m: string
     length: number
     constructor(ns: NodeType, node: Node, children: any[])
     {
@@ -52,6 +53,8 @@ class treeNode {
         this.children = children
         this.sourceInterval = node.source
         this.length = 0
+        //debug
+        this.m = this.toString()
     }
     AsUInt(): number{
         throw new Error("uh oh")
@@ -64,6 +67,9 @@ class treeNode {
     }
     GetDataCopy():boolean[]{
         throw new Error("uh oh")
+    }
+    toString(){
+        return "tn: "+NodeType[this.type]+" "+this.source;
     }
 }
 
