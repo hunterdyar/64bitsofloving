@@ -18,19 +18,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             let s = env.pop()
             yield* EvaluateNode(node.children[1],env)
             let l = env.pop()
-            if(s instanceof pointer){
-              //  console.log("p", s.AsUInt().toString())
-                return;
-            }
-            // else if(s instanceof bitValue){
-            //   // console.log("bv", s.AsUInt().toString())
-            // }
-
-            
-                        console.log("this should be 8", l.AsUInt())
-                        console.log("this should be 8", l.AsUInt())
-
-            console.log("eval range", s,s?.AsUInt(), l,l?.AsUInt());
+    
             if(s == undefined){
                 throw new Error("oopsie, bad thingy in the pointer.")
             }else if (l == undefined){
@@ -38,12 +26,10 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             }
             let p =new pointer(s.AsUInt(),l.AsUInt(), env)
             env.push(p)
-            console.log("evaluated range to pointer: ",p)
             yield node
             break;
         case NodeType.Identifier:
             var range = env.GetRangeFromIdent(node.source);
-            console.log("evaluating identifier "+node.source, range)
             if(range){
                 env.push(range);
                 yield node
@@ -61,7 +47,6 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             //Let's check if we are assigning to an identifier.
             if(node.children[0].type == NodeType.Identifier){
                 let assigneeString = node.children[0].source
-                console.log("set to identifier", assigneeString)
                 //if it is a range, update or set assignee.
                 if(valueOrRange instanceof pointer){
                     env.SetOrAssign(assigneeString, valueOrRange)
@@ -82,10 +67,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             }
 
             yield* EvaluateNode(node.children[0], env)
-            let pointerNode = env.pop();
-
-            console.log("assign", valueOrRange, " to ", pointerNode)
-           
+            let pointerNode = env.pop();           
            
             if(pointerNode != undefined){
                 if(pointerNode instanceof pointer){

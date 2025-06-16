@@ -34,7 +34,6 @@ s.addOperation("toTree",{
         tokenCount+=2
         let s = start.toTree()
         let e = end.child(0).toTree()
-        console.log("range", s,e)
         return new treeNode(NodeType.Range, this,[s,e])
     },
     UnrOp(op,expr){

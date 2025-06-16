@@ -175,7 +175,6 @@ class Environment{
         }
     }
     Set(loc: pointer, val: bitValue){
-        console.log("env setting",loc,val)
         for(let i = 0;i<loc.length;i++){
             var bit = val.GetBit(i)
             var bitloc = loc.start+i

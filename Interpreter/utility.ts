@@ -5,8 +5,10 @@ function GetAsCharacter(source: boolean[]){
 }
 function GetAsUInt(source: boolean[]): number{
     //@ts-ignore
-    //return source.reduce((res, x) => res << 1 | x)
-    return parseInt(source.reverse().map(x=>x?"1":"0").join(''), 2);
+   // return source.reduce((res, x) => res << 1 | x)
+    let i = parseInt(source.reverse().map(x=>x?"1":"0").join(''), 2);
+    source.reverse()
+    return i;
 }
 function GetAsBinary(source: boolean[]): string{
     source.map(x=>x?"1":"0").join('')
