@@ -6,6 +6,7 @@ import { Environment } from "./environment";
 
 const g = grammar(bitsGrammar);
 const s = g.createSemantics()
+//@ts-ignore
 let env: Environment = undefined
 let tokenCount = 0
 

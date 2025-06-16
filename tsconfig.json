@@ -6,6 +6,7 @@
       "module": "ESNext",
       "moduleDetection": "force",
       "allowJs": true,
+      "sourceMap": true,
   
       // Bundler mode
       "moduleResolution": "bundler",

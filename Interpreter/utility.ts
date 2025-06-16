@@ -11,7 +11,7 @@ function GetAsUInt(source: boolean[]): number{
     return i;
 }
 function GetAsBinary(source: boolean[]): string{
-    source.map(x=>x?"1":"0").join('')
+    return source.map(x=>x?"1":"0").join('')
 }
 function GetAsFloat(source: boolean[]): number{
     return parseFloat("0b"+source.map(x=>x?"1":"0").join(''));

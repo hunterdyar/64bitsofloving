@@ -99,6 +99,7 @@ const lastStepHighlightTHeme = EditorView.baseTheme({
 let state = EditorState.create({
     doc: starting,
     extensions: [
+        //@ts-ignore
       basicSetup, compileOnChangePlugin, keymap.of(defaultKeymap), keymap.of(indentWithTab),
     ]
 })
