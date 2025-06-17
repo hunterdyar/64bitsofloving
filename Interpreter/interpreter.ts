@@ -41,7 +41,6 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 
             case NodeType.ProcCall:
             let id = node.children[0].source.trim()
-            console.log("proc call ",id)
             if(id in env.procedures){
                 let body = env.procedures[id]
                 if(body != undefined){

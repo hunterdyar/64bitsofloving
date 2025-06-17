@@ -85,6 +85,8 @@ class Environment{
             let root = Parse(code, this)
             this.program = EvaluateNode(root, this);
             this.compiled = true;
+            //the cleared optimization helped since we could compile multiple times before actually running....
+            //but now that we edit environment during compilation (procedures), we have to clear all the time. so now there's just cruft of the bool checks.
             this.cleared = false;
         }catch (e){
             if(e instanceof Error){
@@ -125,7 +127,6 @@ class Environment{
     }
 
     clear(){
-        console.log("clear")
         performance.mark("clear");
         this.programData.clear()
         this.memory = new Array<boolean>(64)    
@@ -187,7 +188,6 @@ class Environment{
         if(id == undefined){
             throw new Error("undefined proc id")
         }
-        console.log("add procedure ",id,this.procedures)
         if(id in this.procedures){
             throw new Error("can't redefine procedure")
         }

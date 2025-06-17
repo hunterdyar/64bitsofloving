@@ -130,7 +130,6 @@ s.addOperation("toTree",{
                 if(id.type != NodeType.Identifier){
                     throw new Error("Procedure must be followed by identifier.")
                 }
-                console.log("proc",id)
                 var nodes = block.toTreeArray()
 
                 env.addProcedure(id.source,nodes)
