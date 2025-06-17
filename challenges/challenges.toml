@@ -1,10 +1,9 @@
 [[challenges]]
-title = "Counting to 10"
-description = "Let's count some numbers!"
-maxBytes = 30
+title = "Counting Down"
+description = "Let's manage a loop!"
+maxBytes = 35
 maxTokens = 20
-hasTextOut = true
-textOut = "0123456789"
+textOut = "9876543210"
 hasImageOut = false
 
 
@@ -13,7 +12,6 @@ title = "Hello, World"
 description = "The classic first program is harder here than in most languages. Print out 'Hello World!'"
 maxBytes = -1
 maxTokens = 100
-hasTextOut = true
-textOut = "Hello, World"
+textOut = "Hello, World!"
 hasImageOut = false
 imageOut = 0

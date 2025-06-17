@@ -1,6 +1,7 @@
 import cData from "../challenges/challenges.toml"
 import type { ProgramData } from "../interpreter/environment.ts";
 import {env} from "./page.ts"
+import { type Challenge } from "../challenges/challenges.ts";
 
 const localStorageChallengeKey = "64BitsOrLessSelectedChallenge"
 const select = document.getElementById("challengeSelect") as HTMLSelectElement
@@ -13,10 +14,29 @@ const consoleContainer = document.getElementById("consoleContainer")
 var selectedChallenge: Challenge | undefined;
 
 const bytesTestResult = testList.appendChild(document.createElement("li")) as HTMLLIElement
-bytesTestResult.innerText = "total bytes:";//temop
 const tokensTestResult = testList.appendChild(document.createElement("li")) as HTMLLIElement
-tokensTestResult.innerText = "token count:";//temop
+const textOutTestResult = testList.appendChild(document.createElement("li")) as HTMLLIElement
 
+const heart = String.fromCodePoint(0x2764,0xFE0F)+" "
+const noheart = String.fromCodePoint(0x274C)+" "
+//prohibited (circleslash) 0x1F6AB
+//broken heart 0x1F494
+//black heart 0x1F5A4
+//cross mark 0x274C
+
+class TestResult{
+    bytes: boolean = false
+    tokens: boolean = false
+    textOut: boolean = false
+
+    all():boolean{
+        return this.bytes && this.tokens && this.textOut
+    }
+}
+
+const testResult = new TestResult()
+
+//listeners
 env.emitter.on('onComplete',TestChallenge)
 env.programData.emitter.on("onChange", TestSize);
 
@@ -57,11 +77,25 @@ function challengeSelected(ev:Event | undefined){
         desc.innerText = selectedChallenge.description
         container?.classList.remove("hide")
         consoleContainer.className = "console"
+        //bytes
         if(selectedChallenge.maxBytes <= 0){
             bytesTestResult.className = "hide"
         }else{
             bytesTestResult.className = ""
         }
+        //tokens
+        if(selectedChallenge.maxTokens <= 0){
+            tokensTestResult.className = "hide"
+        }else{
+            tokensTestResult.className = ""
+        }
+        //text
+        if(selectedChallenge.textOut == undefined){
+            textOutTestResult.className = "hide"
+        }else{
+            textOutTestResult.className = ""
+        }
+        
     }else{
         container.className = "hide"
         consoleContainer.className = "console-full"
@@ -70,10 +104,57 @@ function challengeSelected(ev:Event | undefined){
     localStorage.setItem(localStorageChallengeKey, select.options.selectedIndex.toString())
 }
 
+
+//tests.
+
 function TestChallenge(){
-    if(selectedChallenge == undefined){ return;}
+    if(selectedChallenge == undefined){ return; }
+
+    //tun tests. these update testResult.
     TestSize(env.programData);
-    
+    testResult.textOut = TestTextOut(selectedChallenge.textOut, env.output);
+
+    let passed = testResult.all();
+    if(passed){
+        console.log("you did it");
+    }
+}
+
+function TestTextOut(expectedStr: string|undefined, givenStr: string): boolean{
+    if(expectedStr == undefined){
+        return true;//valid, we met the "none" constraint :p
+    }
+    textOutTestResult.innerText = ""
+    let result = true
+    for(let i = 0;i<Math.max(expectedStr.length, givenStr.length);i++){
+        let expected = expectedStr[i]
+        let given = givenStr[i]
+        let sp = textOutTestResult.appendChild(document.createElement("span"))
+        if(expected != undefined){
+            sp.innerText = expected
+            // if given is undefined, fails here. (shorter than expected)
+            if(expected == given){ 
+                sp.className = "textOut-valid"
+            }else{
+                sp.className = "textOut-invalid"
+                result = false
+            }
+        }else if(given != undefined){ 
+            //given an answer past our expected. (longer)
+            sp.innerText = given            
+            sp.className = "textOut-invalid"
+            result = false
+        }
+    }
+    let c = document.createElement("span")
+    textOutTestResult.prepend(c);
+
+    if(result){
+        c.innerText = heart+"OK: ";
+    }else{
+        c.innerText = noheart+"NO: ";
+    }
+    return result
 }
 
 function TestSize(data: ProgramData){
@@ -83,33 +164,28 @@ function TestSize(data: ProgramData){
     //test bytes
     if(selectedChallenge.maxBytes > 0){
         if(data.bytes <= selectedChallenge.maxBytes){
-            console.log("success!")
-            bytesTestResult.innerText = "bytes: OK"
+            bytesTestResult.innerText = heart+"bytes: OK. "+data.bytes.toString()+" <= "+selectedChallenge.maxBytes.toString()
+            testResult.bytes = true
         }else{
-            bytesTestResult.innerText = "bytes: no"
+            bytesTestResult.innerText = noheart+"bytes: no. "+data.bytes.toString()+" <= "+selectedChallenge.maxBytes.toString()
+            testResult.bytes = false;
         }
+    }else{
+        testResult.bytes = true
     }
 
     //test tokens
     if(selectedChallenge.maxTokens > 0){
-        if(data.bytes <= selectedChallenge.maxBytes){
-            console.log("success!")
-            tokensTestResult.innerText = "tokens: OK"
+        if(data.tokenCount <= selectedChallenge.maxTokens){
+            tokensTestResult.innerText = heart+"tokens: OK. "+data.tokenCount.toString()+" <= "+selectedChallenge.maxTokens.toString()
+            testResult.tokens = true
         }else{
-            tokensTestResult.innerText = "tokens: no"
+            tokensTestResult.innerText = noheart+"tokens: no. "+data.tokenCount.toString()+" <= "+selectedChallenge.maxTokens.toString()
+            testResult.tokens = false
         }
+    }else{
+        testResult.tokens = true
     }
 }
-
-type Challenge = {
-    title: string
-    description: string
-    maxBytes: number
-    maxTokens: number
-    textOut: string | undefined
-    hasTextOut: boolean
-    imageOut: number[]
-}
-
 
 
