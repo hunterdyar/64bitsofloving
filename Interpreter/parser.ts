@@ -25,7 +25,7 @@ s.addOperation("toTreeArray",{
 
 s.addOperation("toTree",{
     //@ts-ignore
-    Program(s) {return new treeNode(NodeType.Program, "program", s.children.map(x=>x.toTree()))},
+    Program(s) {return new treeNode(NodeType.Program, "program", s.children.filter(x=>x!==undefined).map(x=>x.toTree()))},
     //@ts-ignore
     Assign(left,w,expr) {
         tokenCount++
@@ -130,9 +130,10 @@ s.addOperation("toTree",{
                 if(id.type != NodeType.Identifier){
                     throw new Error("Procedure must be followed by identifier.")
                 }
+                console.log("proc",id)
                 var nodes = block.toTreeArray()
 
-                env.addProcedure(id.sourceString,nodes)
+                env.addProcedure(id.source,nodes)
                 //no 
                 return undefined
             break;
@@ -147,7 +148,9 @@ s.addOperation("toTree",{
         return new treeNode(NodeType.Call, this, [ident.toTree(),arglist.toTreeArray()])
     },
     //@ts-ignore
-    
+    ProcCall(prefix,ident){
+        return new treeNode(NodeType.ProcCall, this, [ident.toTree()])
+    },
     numLiteral(number, suffix){
         //combine intervals.
         tokenCount++

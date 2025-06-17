@@ -7,8 +7,10 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
     switch(node.type){
         case NodeType.Program:
             for(let i = 0; i<node.children.length;i++){
-                performance.mark("step-root-node")
-                yield* EvaluateNode(node.children[i],env)
+                if(node.children[i] != undefined){
+                    performance.mark("step-root-node")
+                    yield* EvaluateNode(node.children[i],env)
+                }
             }
             env.running = false
             break
@@ -34,24 +36,31 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 env.push(range);
                 yield node
                 return
-            }else{
-                if(node.source in env.procedures){
-                    let body = env.procedures[node.source]
-                    if(body != undefined){
-                        for(let i = 0; i<body.length;i++){
-                            let n = body[i];
-                            if(n != undefined){
-                                yield* EvaluateNode(n,env)
-                            }else{
-                                throw new Error("undefined body item in procedure.")
-                            }
+            }
+            throw new Error("Unknown identifier "+node.source);
+                
+            case NodeType.ProcCall:
+            let id = node.children[0].source.trim()
+            console.log("proc call ",id)
+            if(id in env.procedures){
+                let body = env.procedures[id]
+                if(body != undefined){
+                    yield node
+                    for(let i = 0; i<body.length;i++){
+                        let n = body[i];
+                        if(n != undefined){
+                            yield* EvaluateNode(n,env)
+                        }else{
+                            throw new Error("undefined body item in procedure.")
                         }
+                    }
                     return
                 }
-                }else{
-                    throw new Error("Unknown identifier "+node.source);
-                }
+                return;
+            }else{
+                throw new Error("Unknown procedure name "+id);
             }
+            
             break
         case NodeType.Assign:
             //Assign is two nodes, assignment (pointer = value) and declaration (unseen id = value)

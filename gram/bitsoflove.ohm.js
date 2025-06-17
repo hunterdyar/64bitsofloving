@@ -10,6 +10,7 @@ Bits {
     | BlockCall
     | Call
     | BinAssign
+    | ProcCall
 
     startPoint = "["
     endPoint = "]"
@@ -35,6 +36,7 @@ Bits {
     mod = "%"
     not = "~"
     assign = "="
+    procprefix = ">"
 
     signed = "s"
     unsigned = "u"
@@ -76,6 +78,9 @@ Bits {
   
   Call
   = ident join ArgList 
+
+  ProcCall
+  = procprefix ident
 
    Range 
    = startPoint Expr divPoint Expr? endPoint

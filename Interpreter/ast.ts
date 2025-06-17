@@ -16,7 +16,8 @@ enum NodeType {
     If,
     While,
     For,
-    Procedure,
+    Procedure,//definition
+    ProcCall,
 }
 enum Ops{
     Not,

@@ -85,8 +85,8 @@ class Environment{
             let root = Parse(code, this)
             this.program = EvaluateNode(root, this);
             this.compiled = true;
+            this.cleared = false;
         }catch (e){
-            
             if(e instanceof Error){
                 this.programData.setError(true, e)
             }
@@ -125,6 +125,7 @@ class Environment{
     }
 
     clear(){
+        console.log("clear")
         performance.mark("clear");
         this.programData.clear()
         this.memory = new Array<boolean>(64)    
@@ -183,6 +184,10 @@ class Environment{
         }
     }
     addProcedure(id: string, body: treeNode[]){
+        if(id == undefined){
+            throw new Error("undefined proc id")
+        }
+        console.log("add procedure ",id,this.procedures)
         if(id in this.procedures){
             throw new Error("can't redefine procedure")
         }
