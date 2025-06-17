@@ -16,11 +16,11 @@
                 display: grid;
                 grid-template-areas:
                     'header header'
-                    'console console'
+                    'bits bits'
+                    'challenge console'
                     'editor editor'
                     'footer footer';
                 grid-template-columns: 2fr 2fr;
-                grid-template-rows: 6em 1fr auto 2em auto;
                 row-gap: 3em;
            }
            
@@ -54,7 +54,7 @@
            .output{
                 padding: 6px;
                 display: flex;
-                margin-top: 1em;
+                margin-top: 1.5em;
                 grid-area: output;
                 font-size: larger;
                 background-color: lightgoldenrodyellow;
@@ -65,8 +65,16 @@
             margin: 0;
             padding: 0;
            }
+           .console-full{
+            grid-row-start: challenge;
+            grid-column-start: challenge;
+            grid-column-end: console;
+            height: fit-content;
+            margin: 0;
+            padding: 0;
+           }
 
-           .console p{
+           .console p,.console-full p{
             flex-grow: 10;
             display: inline-block;
             margin-top: 0;
@@ -80,8 +88,9 @@
             width: 100%;
            }
 
-           
+        
            .bits{
+            grid-area: bits;
             width: 100%;
             padding: 0;
             display: grid;
@@ -109,9 +118,13 @@
            .controls{
             margin-bottom: .5em;
             height: 1.5em;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
            }
            .controls button{
             height: 100%;
+            
            }
 
            .r0.c1,.r2.c1,.r0.c3,.r2.c3{
@@ -136,6 +149,19 @@
            .programData{
             font-size: 8pt;
            }
+           .challenge{
+                grid-area: challenge;
+           }
+           .hide{
+            display: none;
+           }
+           select#challengeSelect{
+            margin-bottom: 2em;
+           }
+
+           #cTitle{
+            margin-top:0;
+           }
         </style>
     </head>
 
@@ -146,36 +172,53 @@
             <p>bit twiddling golf esolang</p>
         </section>
 
-        <section class="console">
-            <div class="bits" id="bitcontainer">
-            </div>
+        <div class="bits" id="bitcontainer">
+        </div>
+        <section id = "consoleContainer" class="console-full">
             <div class="output">
                 <p id="textout"></p>
                 <canvas id="imageout" width="128px" height="128px"></canvas>
             </div>
         </section>
 
+        <section class="challenge">
+            <label for="challengeSelect">Challenge:</label>
+                    <select id="challengeSelect">
+                        <option value="none">none</option>
+                    </select>
+            <div id="cDataContainer" class="hide">
+
+            <h1 id="cTitle">challenge title</h1>
+            <p id="cDesc"> challenge description goes here.</p>
+            <ul id="cTests">
+            </ul>
+            </div>
+        </section>
+
         <section id="textentry" class="textentry">
             <div id="buttons" class="controls">
+                <span class="leftControls">
                 <button id="run">run</button>
                 <span> | </span>
                 <button id="compile">compile</button>
                 <button id="step">step</button>
+                </span>
+                <span class = "rightControls">
+                    
+                </span>
+                <p class="programData">bytes: <span id="byteCount">0</span> tokens: <span id="tokenCount">0</span></p>
             </div>
             <div id="inputContainer"></div>
-            <p class="programData">bytes: <span id="byteCount">0</span> tokens: <span id="tokenCount">0</span></p>
             <p class="error" id="errorBox"></p>
             </p>
         </section>
-     
-        <section id ="preview" class="output">
-        </section>
+        
+    
     <section class="footer">
         <p>By <a href="http://hdyar.com" target="_blank"> Hunter Dyar</a>. <a href="https://github.com/hunterdyar/64bitsofloving" target="_blank">Source</a>.</p>
     </section>
     </article>
-        <!-- <script src="ast.js"></script> -->
-        <!-- <script src="ast.js"></script> -->
         <script src="./web/page.ts" type="module"></script>
+        <script src="./web/challengeHandler.ts" type="module"></script>
     </body>
 </html>

@@ -1,0 +1,19 @@
+[[challenges]]
+title = "Counting to 10"
+description = "Let's count some numbers!"
+maxBytes = 30
+maxTokens = 20
+hasTextOut = true
+textOut = "0123456789"
+hasImageOut = false
+
+
+[[challenges]]
+title = "Hello, World"
+description = "The classic first program is harder here than in most languages. Print out 'Hello World!'"
+maxBytes = -1
+maxTokens = 100
+hasTextOut = true
+textOut = "Hello, World"
+hasImageOut = false
+imageOut = 0

@@ -4,7 +4,7 @@ import {EditorState, StateField, StateEffect, RangeSet} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
 import { Decoration, type DecorationSet } from "@codemirror/view";
-import { Environment, ProgramData } from "../interpreter/environment";
+import emitter, { Environment, ProgramData } from "../interpreter/environment";
 import type { treeNode } from "../interpreter/ast";
 
 const localStorageKey = "64BitsOrLessEditorValue"
@@ -119,12 +119,12 @@ if(stepButton!=null){
     stepButton.onclick = (e) => step()
 }
 
-env.onComplete = onComplete
-env.onchange = onBitChanged;
-env.onStep = onStep;
-env.onOutput = onOutput;
-env.onPixel = onPixel;
-env.programData.onChange = onProgramDataChange;
+env.emitter.on("onComplete",onComplete)
+env.emitter.on("onChange",onBitChanged);
+env.emitter.on("onStep", onStep);
+env.emitter.on('onOutput', onOutput);
+env.emitter.on("onPixel", onPixel);
+env.programData.emitter.on("onChange", onProgramDataChange);
 
 function onBitChanged(bit: number, val: boolean){
   if(env.running){
@@ -252,3 +252,6 @@ function compile(){
 function step(){
     env.step()
 }
+
+
+export {env}

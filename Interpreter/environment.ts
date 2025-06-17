@@ -3,15 +3,17 @@ import { bitValue, pointer, treeNode, type runtimeType } from "./ast";
 import { EvaluateNode } from "./interpreter";
 import { Parse } from "./parser";
 import { UintToBoolArray } from "./utility";
+import EventEmitter from "events"
+import { emit } from "process";
+
 class ProgramData{
+    emitter = new EventEmitter()
     bytes: number
     tokenCount: number
     compiled: boolean
     hasError: boolean
     error: Error | undefined
-    onChange: ((p:ProgramData) => void)
     constructor(){
-        this.onChange = (x)=>{}
         this.bytes = 0
         this.tokenCount = 0
         this.compiled = false
@@ -21,7 +23,7 @@ class ProgramData{
     SetParseData(b: number, t: number){
         this.bytes = b;
         this.tokenCount = t;
-        this.onChange(this)
+        this.emitter.emit("onChange",this)
     }
     clear(){
         this.bytes = 0
@@ -31,10 +33,11 @@ class ProgramData{
     setError(hasError: boolean, error: Error | undefined = undefined){
         this.hasError = hasError
         this.error = error
-        this.onChange(this)
+        this.emitter.emit("onChange", this)
     }
 }
 class Environment{
+    emitter = new EventEmitter();
     memory: boolean[]
     stack: runtimeType[]
     program: Generator<treeNode> | undefined
@@ -52,8 +55,9 @@ class Environment{
     onchange: ((bit:number,value:boolean) => void)
     onStep:  ((last:treeNode | undefined) => void )
     onPixel: ((x: number, color: number) => void)
-    onOutput: (s: string) => void
+    onOutput: ((message: string) => void)
     constructor(){
+        this.emitter = new EventEmitter();
         this.memory = new Array<boolean>(64+16)//64 bit heap, 16 bit stack.
         this.displaySize = 16
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
@@ -61,11 +65,11 @@ class Environment{
         this.stack = []
         this.procedures = {}
         // this.programData.SetBytes(0)
-        this.onchange = (a,b)=>{}
-        this.onPixel = (a,b)=>{}
-        this.onStep = (a)=>{}
-        this.onOutput = (a)=>{}
-        this.onComplete = ()=>{}
+        this.onchange = (a,b)=>{this.emitter.emit("onChange",a,b)}
+        this.onPixel = (a,b)=>{this.emitter.emit("onPixel",a,b)}
+        this.onStep = (a)=>{this.emitter.emit("onStep",a)}
+        this.onOutput = (a)=>{this.emitter.emit("onOutput",a)}
+        this.onComplete = ()=>{this.emitter.emit("onComplete")}
 
         this.globals = {}
         this.populateDefaultVariables()
