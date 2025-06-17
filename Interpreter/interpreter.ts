@@ -35,7 +35,22 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 yield node
                 return
             }else{
-                throw new Error("Unknown identifier "+node.source);
+                if(node.source in env.procedures){
+                    let body = env.procedures[node.source]
+                    if(body != undefined){
+                        for(let i = 0; i<body.length;i++){
+                            let n = body[i];
+                            if(n != undefined){
+                                yield* EvaluateNode(n,env)
+                            }else{
+                                throw new Error("undefined body item in procedure.")
+                            }
+                        }
+                    return
+                }
+                }else{
+                    throw new Error("Unknown identifier "+node.source);
+                }
             }
             break
         case NodeType.Assign:

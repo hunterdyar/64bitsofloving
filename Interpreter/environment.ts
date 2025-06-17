@@ -47,6 +47,8 @@ class Environment{
     dispay: number[]
     programData: ProgramData = new ProgramData()
     displaySize: number
+    procedures: Dict<treeNode[]>
+    onComplete: (() => void)
     onchange: ((bit:number,value:boolean) => void)
     onStep:  ((last:treeNode | undefined) => void )
     onPixel: ((x: number, color: number) => void)
@@ -57,11 +59,13 @@ class Environment{
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
         this.stack = []
+        this.procedures = {}
         // this.programData.SetBytes(0)
         this.onchange = (a,b)=>{}
         this.onPixel = (a,b)=>{}
         this.onStep = (a)=>{}
         this.onOutput = (a)=>{}
+        this.onComplete = ()=>{}
 
         this.globals = {}
         this.populateDefaultVariables()
@@ -90,15 +94,18 @@ class Environment{
     }
 
     RunToEnd(){
+        performance.mark("run-to-end-start");
         this.cleared = false;
         this.running = true
         //todo: refactor this to iterate directly to avoid all the calls.
         while(this.running){
             this.step()
         }
+        this.onComplete()
     }
 
     step(){
+        performance.mark("step");
         this.cleared = false;
         if(this.program!=undefined){
             let x = this.program.next()
@@ -118,12 +125,13 @@ class Environment{
     }
 
     clear(){
+        performance.mark("clear");
         this.programData.clear()
         this.memory = new Array<boolean>(64)    
         this.dispay = new Array<number>(32*32)
         this.stack = []
         this.output = ""
-
+        this.procedures = {}
         for(let i = 0;i<this.memory.length;i++){
             this.SetBit(i,false);
         }
@@ -174,6 +182,12 @@ class Environment{
             this.globals[name] = new pointer(offset,c, this)
         }
     }
+    addProcedure(id: string, body: treeNode[]){
+        if(id in this.procedures){
+            throw new Error("can't redefine procedure")
+        }
+        this.procedures[id] = body
+    }
     Set(loc: pointer, val: bitValue){
         for(let i = 0;i<loc.length;i++){
             var bit = val.GetBit(i)
@@ -205,6 +219,7 @@ class Environment{
         if(value != p){
             this.memory[bit] = value
             this.onchange(bit,value)
+        
         }
     }
     GetBit(bit:number):boolean{

@@ -122,8 +122,23 @@ s.addOperation("toTree",{
             case "for":
             case "f":
                 return new treeNode(NodeType.For, this, [expr.toTree(), block.toTreeArray()])
-            default:
+            case "procedure":
+            case "proc":
+            case "fn":
+                var id = expr.toTree();
+                //register procedure in a dictionary in environment.
+                if(id.type != NodeType.Identifier){
+                    throw new Error("Procedure must be followed by identifier.")
+                }
+                var nodes = block.toTreeArray()
+
+                env.addProcedure(id.sourceString,nodes)
+                //no 
+                return undefined
+            break;
+                default:
                 throw new Error("invalid block call identifier "+ident.sourceString+".")
+            
         }
     },
     Call(ident,join,arglist){

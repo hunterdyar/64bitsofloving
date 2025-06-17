@@ -20,7 +20,7 @@ const imageOutCTX = imageOut?.getContext("2d");
 const byteCount = document.getElementById("byteCount");
 const tokenCount = document.getElementById("tokenCount");
 const errorBox = document.getElementById("errorBox");
-
+var dirty: boolean
 const bits: HTMLDivElement[] = []
 if(!starting){
     starting = `a = [0:8]
@@ -119,6 +119,7 @@ if(stepButton!=null){
     stepButton.onclick = (e) => step()
 }
 
+env.onComplete = onComplete
 env.onchange = onBitChanged;
 env.onStep = onStep;
 env.onOutput = onOutput;
@@ -126,11 +127,29 @@ env.onPixel = onPixel;
 env.programData.onChange = onProgramDataChange;
 
 function onBitChanged(bit: number, val: boolean){
+  if(env.running){
+    dirty = true
+  }else{
     var b = bits[bit]
     if(b){
         b.innerHTML = val ? "1" : "0";
         b.classList = val ? "bit filled" : "bit empty"
     }
+  }
+}
+function onComplete(){
+  if(dirty){
+    for(let i = 0;i<bits.length;i++){
+      var val = env.memory[i]
+      var b = bits[i]
+      if(b){
+          b.innerHTML = val ? "1" : "0";
+          b.classList = val ? "bit filled" : "bit empty"
+      }
+    }
+    allPixels()
+    dirty = false
+  }
 }
 function onStep(last: treeNode | undefined){
     if(last != undefined){
@@ -147,6 +166,9 @@ function onOutput(out: string){
     }
 }
 function onPixel(i: number, c: number){
+    if(env.running){
+      dirty = true
+    }else{
     let l = env.displaySize
     let rs = imageOut.width/env.displaySize;
 
@@ -157,6 +179,7 @@ function onPixel(i: number, c: number){
 
       imageOutCTX.fillRect(x, y, rs, rs);
     }
+  }
 }
 allPixels()
 
