@@ -213,7 +213,24 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                     }
                 }
                 //yield node
-                break
+            break
+        case NodeType.IfZ:
+                yield* EvaluateNode(node.children[0], env)
+                if(!Truthy(env.pop())){
+                    //do body
+                    for(let i = 0; i<node.children[1].length;i++){
+                        yield* EvaluateNode(node.children[1][i],env)
+                    }
+                }else{
+                    //do else/alternative.
+                    if(node.children.length == 3){
+                        for(let i = 0; i<node.children[2].length;i++){
+                            yield* EvaluateNode(node.children[2][i],env)
+                        }
+                    }
+                }
+                //yield node
+            break
     }
 }
 function Truthy(element: runtimeType): boolean{

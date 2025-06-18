@@ -115,6 +115,8 @@ s.addOperation("toTree",{
         switch(ident.sourceString){
             case "if":
                 return new treeNode(NodeType.If, this, [expr.toTree(), block.toTreeArray()])
+            case "ifz":
+                return new treeNode(NodeType.IfZ, this, [expr.toTree(), block.toTreeArray()])
             case "while":
             case "wh":
             case "w":

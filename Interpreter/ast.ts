@@ -14,6 +14,7 @@ enum NodeType {
     BinaryOp,
     Call,
     If,
+    IfZ,
     While,
     For,
     Procedure,//definition
