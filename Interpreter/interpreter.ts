@@ -61,6 +61,21 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             }
             
             break
+        case NodeType.Declare:
+            yield* EvaluateNode(node.children[1],env)
+            let decPointerTo = env.pop();
+            if(node.children[0].type == NodeType.Identifier){
+                let assigneeString = node.children[0].source
+                //if it is a range, update or set assignee.
+                if(decPointerTo instanceof pointer){
+                    env.SetOrAssign(assigneeString, decPointerTo)
+                    yield node
+                    return
+                }else{ 
+                    throw new Error("Can only declare a pointer to an identity.");
+                }
+            }
+            break;
         case NodeType.Assign:
             //Assign is two nodes, assignment (pointer = value) and declaration (unseen id = value)
 
@@ -72,14 +87,20 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 let assigneeString = node.children[0].source
                 //if it is a range, update or set assignee.
                 if(valueOrRange instanceof pointer){
-                    env.SetOrAssign(assigneeString, valueOrRange)
+                    var assignee = env.GetRangeFromIdent(assigneeString)
+                    if(assignee != undefined){
+                        env.Copy(valueOrRange, assignee);
+                    }else{
+                        throw new Error("Unknown identifier "+assigneeString+". Variables need to be declared with the ':=' operator.")
+                    }
                     yield node
                     return
                 }
+                //todo: this can, i think, be handled by the below case?
                 if(valueOrRange instanceof bitValue){
                     var assignee = env.GetRangeFromIdent(assigneeString)
                     if(assignee == undefined){
-                        throw new Error("unknown identifier: "+assigneeString+". To declare variable, declare it to a pointer ([]) before assigning to a value.")
+                        throw new Error("unknown identifier: "+assigneeString+". To declare variable, use the ':=' operator.")
                     }
                     env.Set(assignee, valueOrRange)
                     yield node

@@ -9,7 +9,7 @@ Bits {
     | Assign
     | BlockCall
     | Call
-    | BinAssign
+    | Declare
     | ProcCall
 
     startPoint = "["
@@ -36,6 +36,7 @@ Bits {
     mod = "%"
     not = "~"
     assign = "="
+    declare = ":="
     procprefix = ">"
 
     signed = "s"
@@ -63,7 +64,10 @@ Bits {
  Assign
  	= ident assign Expr
   | Range assign Expr
-   
+
+ Declare
+  = ident declare Expr
+
   BinOp
  	= Expr binops Expr
      

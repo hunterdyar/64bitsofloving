@@ -31,6 +31,10 @@ s.addOperation("toTree",{
         tokenCount++
          return new treeNode(NodeType.Assign,this, [left.toTree(), expr.toTree()])
     },
+    Declare(left, dec, expr){
+        tokenCount++
+        return new treeNode(NodeType.Declare, this, [left.toTree(), expr.toTree()])
+    },
     Range(open, start, colon, end,close){
         tokenCount+=2
         let s = start.toTree()

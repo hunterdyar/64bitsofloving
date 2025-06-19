@@ -7,6 +7,7 @@ import type { Env } from "bun";
 enum NodeType {
     Program,
     Assign,
+    Declare,
     Literal,
     Identifier,
     Range,

@@ -107,6 +107,7 @@ class Environment{
         while(this.running){
             this.step()
         }
+        
         this.onComplete()
     }
 
@@ -261,11 +262,16 @@ class Environment{
         for(let i = 0;i<Math.min(source.length, target.length);i++){
             var b = this.memory[source.start+1];
             if( b != undefined){
-                this.memory[target.start+i] = b
+                let c = this.memory[target.start+i]
+                if(b != c){
+                    this.memory[target.start+i] = b
+                    this.onchange(target.start+i, b)
+                }
             } else{
                 throw new Error("uh oh!");
             }
         }
+
     }
 
     SetPixel(i:number, color: number){
