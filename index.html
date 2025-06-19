@@ -17,6 +17,7 @@
                 grid-template-areas:
                     'header header'
                     'bits bits'
+                    'wbits wbits'
                     'challenge console'
                     'editor editor'
                     'footer footer';
@@ -100,6 +101,17 @@
             overflow: hidden;
             border: 1px solid black;
             }
+            .wbits{
+            grid-area: wbits;
+            width: 100%;
+            padding: 0;
+            display: grid;
+            direction: rtl;
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(1, 1fr);
+            overflow: hidden;
+            border: 1px solid grey;
+            }
 
            .bit{
             width: 100%;
@@ -180,8 +192,8 @@
             <p>bit twiddling golf esolang</p>
         </section>
 
-        <div class="bits" id="bitcontainer">
-        </div>
+        <div class="bits" id="bitcontainer"></div>
+        <div class="wbits" id="workingContainer"></div>
         <section id = "consoleContainer" class="console-full">
             <div class="output">
                 <p id="textout"></p>

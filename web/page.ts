@@ -10,6 +10,7 @@ import type { treeNode } from "../interpreter/ast";
 const localStorageKey = "64BitsOrLessEditorValue"
 let starting = localStorage.getItem(localStorageKey);
 const bitContainer = document.getElementById("bitcontainer");
+const workingContainer = document.getElementById("workingContainer");
 const inputContainer = document.getElementById("inputContainer") as HTMLDivElement
 const runButton = document.getElementById("run");
 const stepButton = document.getElementById("step");
@@ -20,8 +21,11 @@ const imageOutCTX = imageOut?.getContext("2d");
 const byteCount = document.getElementById("byteCount");
 const tokenCount = document.getElementById("tokenCount");
 const errorBox = document.getElementById("errorBox");
+
 var dirty: boolean
 const bits: HTMLDivElement[] = []
+const workingBits: HTMLDivElement[] = []
+
 if(!starting){
     starting = `a = [0:8]
 a = 200
@@ -30,7 +34,7 @@ a = 255
     }
 
 function loadbits(){
-    if(bitContainer == null){
+    if(bitContainer == null ){
         return;
     }
     for(var i=0;i<64;i++){
@@ -46,6 +50,24 @@ function loadbits(){
         bitdot.innerText = "0";
         bit.appendChild(bitdot)
         bits.push(bitdot)
+    }
+
+    if(workingContainer == null){
+      return
+    }
+    for(var i=0;i<16;i++){
+        var bit = document.createElement("div");
+        let row = Math.floor(i/16)
+        let col = Math.floor((i%16)/4)
+        bit.className = "bitbox r"+row+" c"+col
+        workingContainer.appendChild(bit);
+
+        let bitdot = document.createElement("div");
+        bitdot.id = "bit"+i;
+        bitdot.className = "bit"
+        bitdot.innerText = "0";
+        bit.appendChild(bitdot)
+        workingBits.push(bitdot)
     }
 }
 loadbits();
@@ -130,7 +152,10 @@ function onBitChanged(bit: number, val: boolean){
   if(env.running){
     dirty = true
   }else{
-    var b = bits[bit]
+    if(bit > 64){
+      console.log("working",bit);
+    }
+    var b = bit < 64 ? bits[bit] : workingBits[bit-64]
     if(b){
         b.innerHTML = val ? "1" : "0";
         b.classList = val ? "bit filled" : "bit empty"
@@ -159,6 +184,7 @@ function onStep(last: treeNode | undefined){
         effects.push(StateEffect.appendConfig.of([lastStepHighlightField, lastStepHighlightTHeme]))
         view.dispatch({effects})
      }
+     
 }
 function onOutput(out: string){
     if(textOut != null){

@@ -39,7 +39,6 @@ class ProgramData{
 class Environment{
     emitter = new EventEmitter();
     memory: boolean[]
-    stack: runtimeType[]
     program: Generator<treeNode> | undefined
     running: boolean
     compiled: boolean
@@ -50,6 +49,7 @@ class Environment{
     dispay: number[]
     programData: ProgramData = new ProgramData()
     displaySize: number
+    workingArea : pointer
     procedures: Dict<treeNode[]>
     onComplete: (() => void)
     onchange: ((bit:number,value:boolean) => void)
@@ -62,8 +62,8 @@ class Environment{
         this.displaySize = 16
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
-        this.stack = []
         this.procedures = {}
+        this.workingArea = new pointer(64,16,this)
         // this.programData.SetBytes(0)
         this.onchange = (a,b)=>{this.emitter.emit("onChange",a,b)}
         this.onPixel = (a,b)=>{this.emitter.emit("onPixel",a,b)}
@@ -133,13 +133,13 @@ class Environment{
     clear(){
         performance.mark("clear");
         this.programData.clear()
-        this.memory = new Array<boolean>(64)    
+        this.memory = new Array<boolean>(64+16)    
         this.dispay = new Array<number>(32*32)
-        this.stack = []
         this.output = ""
         this.procedures = {}
         for(let i = 0;i<this.memory.length;i++){
-            this.SetBit(i,false);
+            this.memory[i] = false
+            this.onchange(i,false)
         }
         for(let i = 0;i<this.dispay.length;i++){
             this.onPixel(i,0)
@@ -152,17 +152,27 @@ class Environment{
     }
 
     push(item: runtimeType){
-        if(this.stack.length>1){
-           this.stack.pop();
-           console.log("cleaning stack");
+        if(item != undefined){
+            for(let i =0;i<Math.min(16,item.length);i++){
+                let k = 64+(i)
+                let b = item.GetBit(i)
+                this.memory[k] = b
+                this.onchange(k,b)
+            }
+        }else{
+            //set em all off
+            for(let j =0;j<16;j++){
+                let k = 64+j
+                let b = this.memory[j]
+                if(b){
+                    this.memory[j] = false
+                    this.onchange(k,false)
+                }
+            }
         }
-        this.stack.push(item)
     }
     pop(): runtimeType{
-        if(this.stack.length > 0){
-            return this.stack.pop();
-        }
-        throw new Error("Can't pop nothing.")
+        return this.workingArea
     }
     populateDefaultVariables(){
         this.globals["a64"] = new pointer(0,64, this)
@@ -200,7 +210,7 @@ class Environment{
     Set(loc: pointer, val: bitValue){
         for(let i = 0;i<loc.length;i++){
             var bit = val.GetBit(i)
-            var bitloc = loc.start+i
+            var bitloc = (loc.start+i)%64
             var p = this.memory[bitloc]
             if(p != bit){
                 this.memory[bitloc] = bit;
@@ -221,7 +231,7 @@ class Environment{
     }
 
     SetBit(bit:number, value: boolean): void{
-        if(bit < 0 || bit >64){
+        if(bit < 0 || bit > this.memory.length){
             throw Error("can't set bit, out of range.");
         }
         let p = this.memory[bit]
