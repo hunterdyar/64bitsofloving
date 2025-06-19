@@ -260,13 +260,12 @@ class Environment{
     //todo: onchange
     Copy(source: pointer, target: pointer){
         for(let i = 0;i<Math.min(source.length, target.length);i++){
-            var b = this.memory[source.start+1];
+            var b = this.memory[source.start+i];
             if( b != undefined){
                 let c = this.memory[target.start+i]
-                if(b != c){
-                    this.memory[target.start+i] = b
-                    this.onchange(target.start+i, b)
-                }
+                this.memory[target.start+i] = b
+                this.onchange(target.start+i, b)
+                
             } else{
                 throw new Error("uh oh!");
             }

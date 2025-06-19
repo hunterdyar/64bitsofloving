@@ -153,7 +153,7 @@ function onBitChanged(bit: number, val: boolean){
     dirty = true
   }else{
     if(bit > 64){
-      console.log("working",bit);
+     // console.log("working",bit);
     }
     var b = bit < 64 ? bits[bit] : workingBits[bit-64]
     if(b){
