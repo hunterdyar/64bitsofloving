@@ -17,16 +17,17 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
         case NodeType.Range:
             //parsed into a pointer at the AST.
             yield* EvaluateNode(node.children[0],env)
-            let s = env.pop()
+            let s = env.pop()?.AsUInt()
             yield* EvaluateNode(node.children[1],env)
-            let l = env.pop()
+            let l = env.pop()?.AsUInt();
     
             if(s == undefined){
                 throw new Error("oopsie, bad thingy in the pointer.")
             }else if (l == undefined){
                  throw new Error("oopsie. so length in the range is supposed to be optional but that's not supported yet.")
             }
-            let p =new pointer(s.AsUInt(),l.AsUInt(), env)
+            let ploc = s % 64
+            let p =new pointer(ploc,l, env)
             env.push(p)
             yield node
             break;
@@ -68,6 +69,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 let assigneeString = node.children[0].source
                 //if it is a range, update or set assignee.
                 if(decPointerTo instanceof pointer){
+                    console.log("dec", assigneeString, decPointerTo)
                     env.SetOrAssign(assigneeString, decPointerTo)
                     yield node
                     return
@@ -81,13 +83,15 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
 
             yield* EvaluateNode(node.children[1],env)
             let valueOrRange = env.pop();
-           
             //Let's check if we are assigning to an identifier.
             if(node.children[0].type == NodeType.Identifier){
                 let assigneeString = node.children[0].source
                 //if it is a range, update or set assignee.
                 if(valueOrRange instanceof pointer){
+
                     var assignee = env.GetRangeFromIdent(assigneeString)
+                    console.log("assign to", valueOrRange, assignee, assigneeString)
+
                     if(assignee != undefined){
                         env.Copy(valueOrRange, assignee);
                     }else{

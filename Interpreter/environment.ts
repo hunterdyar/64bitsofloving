@@ -153,7 +153,11 @@ class Environment{
     }
 
     push(item: runtimeType){
+        //todo: a 'pointer' as a runtime item vs. a 'value' as a runtime item. new problem! uhg. it's solvable in the current way but it's still a mess.
+        //visualizing a pointer (8/8 byte numbers) and changing the color or some other 'invisible' value that says "this is pointer" "this is value of x length" is maybe the way to go for it.
+        //but it also opens up the idea that you could sort of hack on those things, since we can see the insides and all that.
         if(item != undefined){
+            this.workingArea.length = Math.min(16,item.length)
             for(let i =0;i<Math.min(16,item.length);i++){
                 let k = 64+(i)
                 let b = item.GetBit(i)
@@ -173,7 +177,7 @@ class Environment{
         }
     }
     pop(): runtimeType{
-        return this.workingArea
+        return new pointer(this.workingArea.start, this.workingArea.length, this)
     }
     populateDefaultVariables(){
         this.globals["a64"] = new pointer(0,64, this)
@@ -270,7 +274,6 @@ class Environment{
                 throw new Error("uh oh!");
             }
         }
-
     }
 
     SetPixel(i:number, color: number){
