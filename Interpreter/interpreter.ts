@@ -172,6 +172,8 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             let argNodes = node.children[1]
             for(let i =0;i< argNodes.length;i++){
                 yield* EvaluateNode(argNodes[i],env)
+                //todo: this breaks because of the lack of stack. another vote against the 16 bit constraint for the stack, since multi-arg calls feels important.
+                //and, when its calling a built-in, it really doesn't feel like it's "cheating" the conceit.
                 args.push(env.pop())
             }
             DoCall(fname, args, env);
@@ -272,35 +274,35 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
         case "pc":
         case "printchar":
         case "putchar":
-            CheckArgumentCount(fname, args, 1);
-            let out = args[0]
-            if(out instanceof treeNode){
-                throw Error("Invalid Argument.");
+            if(args.length == 0){
+                throw new Error("Print Char requires at least one argument");
             }
-            if(out instanceof pointer){
-                env.Print(out.AsChar())
-                return;
+            for(let i = 0;i<args.length;i++){
+                let out = args[0]
+                if(out != undefined){
+                    env.Print(out.AsChar())
+                }
             }
-            if(out instanceof bitValue){
-                env.Print(out.AsChar())
-            }
-            
         break;
         case "pi":
         case "print":
         case "printint":
         case "putint":
-            CheckArgumentCount(fname, args, 1);
-            let intout = args[0]
-            if(intout instanceof treeNode){
-                throw Error("Invalid Argument.");
+            if(args.length == 0){
+                throw new Error("Print Int requires at least one argument");
             }
-            if(intout instanceof pointer){
-                env.Print(intout.AsUInt().toString())
-                return;
-            }
-            if(intout instanceof bitValue){
-                env.Print(intout.AsUInt().toString())
+            for(let i = 0;i<args.length;i++){
+                let intout = args[i]
+                if(intout instanceof treeNode){
+                    throw Error("Invalid Argument.");
+                }
+                if(intout instanceof pointer){
+                    env.Print(intout.AsUInt().toString())
+                    return;
+                }
+                if(intout instanceof bitValue){
+                    env.Print(intout.AsUInt().toString())
+                }
             }
         break;
         case "putbin":
@@ -309,17 +311,21 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
         case "printbinary":
         case "putbin":
         case "putbinary":
-            CheckArgumentCount(fname, args, 1);
-            let binout = args[0]
-            if(binout instanceof treeNode){
-                throw Error("Invalid Argument.");
+            if(args.length == 0){
+                throw new Error("Print Binary requires at least one argument");
             }
-            if(binout instanceof pointer){
-                env.Print(binout.AsBin())
-                return;
-            }
-            if(binout instanceof bitValue){
-                env.Print(binout.AsBin())
+            for(let i = 0;i<args.length;i++){
+                let binout = args[0]
+                if(binout instanceof treeNode){
+                    throw Error("Invalid Argument.");
+                }
+                if(binout instanceof pointer){
+                    env.Print(binout.AsBin())
+                    return;
+                }
+                if(binout instanceof bitValue){
+                    env.Print(binout.AsBin())
+                }
             }
         break;
         case "pixel":
@@ -347,6 +353,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
             break;
         case "copy":
         case "c":
+            //todo remove, now that assign is its own thing.
             CheckArgumentCount(fname,args,2)
             if(args[0] instanceof pointer && args[1] instanceof pointer){
                 env.Copy(args[0],args[1])
