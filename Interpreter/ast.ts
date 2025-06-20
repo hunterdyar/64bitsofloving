@@ -60,18 +60,6 @@ class treeNode {
         //debug
         this.m = this.toString()
     }
-    AsUInt(): number{
-        throw new Error("uh oh")
-    }
-    GetBit(int: number):boolean{
-        throw new Error("uh oh")
-    }
-    SetBit(i: number, value: boolean): void{
-        throw new Error("uh oh")
-    }
-    GetDataCopy():boolean[]{
-        throw new Error("uh oh")
-    }
     toString(){
         return "tn: "+NodeType[this.type]+" "+this.source;
     }
@@ -169,7 +157,7 @@ class pointer {
     GetBit(i:number):boolean{
         return this.env.GetBit(this.start+i);
     }
-     GetBitSafe(i:number):boolean{
+    GetBitSafe(i:number):boolean{
         return this.env.GetBitSafe(this.start+i);
     }
     SetBit(i: number, value: boolean):void{
@@ -191,7 +179,7 @@ class pointer {
     }
 }
 
-type runtimeType = treeNode | pointer | bitValue | undefined
+type runtimeType =  pointer | bitValue | undefined
 
 
 export { treeNode, pointer, bitValue, RangeType, NodeType, Ops, type runtimeType }

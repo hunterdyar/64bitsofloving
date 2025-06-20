@@ -160,10 +160,13 @@ class Environment{
             this.workingArea.length = Math.min(16,item.length)
             for(let i =0;i<Math.min(16,item.length);i++){
                 let k = 64+(i)
-                let b = item.GetBit(i)
-                this.memory[k] = b
-                this.onchange(k,b)
+                let b = item.GetBitSafe(i)
+                if(this.memory[k] != b){
+                    this.memory[k] = b
+                    this.onchange(k,b)
+                }
             }
+            this.workingArea.length = item.length
         }else{
             //set em all off
             for(let j =0;j<16;j++){
@@ -213,6 +216,7 @@ class Environment{
         this.procedures[id] = body
     }
     Set(loc: pointer, val: bitValue){
+        console.log("set",loc,val);
         for(let i = 0;i<loc.length;i++){
             var bit = val.GetBit(i)
             var bitloc = (loc.start+i)%64
@@ -232,7 +236,26 @@ class Environment{
         }
     }
     SetOrAssign(ident: string, pointer:pointer){
+        //if a = [0:8]
+        //[8:8] = 32
+        //a = [8:8]
+
+        //what should the third assign do? change a to refer to the new location, or set the pointer at a to the data at 8:8?
+    
         this.globals[ident] = pointer
+
+        // if(ident in this.globals){
+        //     //set
+        //     console.log("assign")
+        //     let a = this.globals[ident];
+        //     if(a == undefined){
+        //         throw new Error("womp womp");
+        //     }
+        //     this.Copy(pointer,a)
+        // }else{
+        //     //assign
+        //     this.globals[ident] = pointer
+        // }
     }
 
     SetBit(bit:number, value: boolean): void{

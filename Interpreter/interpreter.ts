@@ -344,6 +344,15 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 }
                 env.SetPixel(y*(env.displaySize)+x,c)
             }
+            break;
+        case "copy":
+        case "c":
+            CheckArgumentCount(fname,args,2)
+            if(args[0] instanceof pointer && args[1] instanceof pointer){
+                env.Copy(args[0],args[1])
+            }else{
+                throw new Error("Copy command only works on pointers.");
+            }
     }
 }
 
