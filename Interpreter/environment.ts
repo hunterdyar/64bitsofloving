@@ -49,7 +49,11 @@ class Environment{
     dispay: number[]
     programData: ProgramData = new ProgramData()
     displaySize: number
-    workingArea : pointer
+    register : pointer
+    regLocPointer : pointer
+    regLenPointer : pointer
+    registerVal : bitValue 
+    registerIsPointer : boolean
     procedures: Dict<treeNode[]>
     onComplete: (() => void)
     onchange: ((bit:number,value:boolean) => void)
@@ -63,7 +67,12 @@ class Environment{
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
         this.procedures = {}
-        this.workingArea = new pointer(64,16,this)
+        this.register = new pointer(64,16,this)
+        this.regLocPointer = new pointer(64,8,this)
+        this.regLenPointer = new pointer(64+8,8,this)
+        this.registerVal = new bitValue()
+        this.registerVal.SetByUint(0,16)
+        this.registerIsPointer = true
         // this.programData.SetBytes(0)
         this.onchange = (a,b)=>{this.emitter.emit("onChange",a,b)}
         this.onPixel = (a,b)=>{this.emitter.emit("onPixel",a,b)}
@@ -156,19 +165,7 @@ class Environment{
         //todo: a 'pointer' as a runtime item vs. a 'value' as a runtime item. new problem! uhg. it's solvable in the current way but it's still a mess.
         //visualizing a pointer (8/8 byte numbers) and changing the color or some other 'invisible' value that says "this is pointer" "this is value of x length" is maybe the way to go for it.
         //but it also opens up the idea that you could sort of hack on those things, since we can see the insides and all that.
-        if(item != undefined){
-            this.workingArea.length = Math.min(16,item.length)
-            for(let i =0;i<Math.min(16,item.length);i++){
-                let k = 64+(i)
-                let b = item.GetBitSafe(i)
-                if(this.memory[k] != b){
-                    this.memory[k] = b
-                    this.onchange(k,b)
-                }
-            }
-            this.workingArea.length = item.length
-        }else{
-            //set em all off
+        if(item == undefined){
             for(let j =0;j<16;j++){
                 let k = 64+j
                 let b = this.memory[j]
@@ -178,9 +175,39 @@ class Environment{
                 }
             }
         }
+
+        if(item instanceof pointer){
+            this.registerIsPointer = true
+            let start = UintToBoolArray(item.start,8)
+            for (let i = 0; i < 8; i++) {
+                this.regLocPointer.SetBit(i,start[i] ? true : false)
+            }
+            let len = UintToBoolArray(item.length,8)
+            for (let i = 0; i < 8; i++) {
+                this.regLenPointer.SetBit(i,start[i] ? true : false)
+            }
+        }else if(item instanceof bitValue){
+            this.registerIsPointer = false
+            for(let i =0;i<Math.min(16,item.length);i++){
+                let k = 64+(i)
+                let b = item.GetBitSafe(i)
+                if(this.memory[k] != b){
+                    this.memory[k] = b
+                    this.registerVal.val[k] = b
+                    this.onchange(k,b)
+                }
+            }
+
+        }
     }
     pop(): runtimeType{
-        return new pointer(this.workingArea.start, this.workingArea.length, this)
+        if(this.registerIsPointer){
+            //feels likes lots of uneccesary work here 
+            return new pointer(this.regLocPointer.AsUInt(), this.regLocPointer.AsUInt(), this)
+        }else{
+            //return a bitvalue
+            return this.registerVal
+        }
     }
     populateDefaultVariables(){
         this.globals["a64"] = new pointer(0,64, this)
