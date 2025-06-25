@@ -17,7 +17,7 @@
                 grid-template-areas:
                     'header header'
                     'bits bits'
-                    'wbits wbits'
+                    'register register'
                     'challenge console'
                     'editor editor'
                     'footer footer';
@@ -101,8 +101,15 @@
             overflow: hidden;
             border: 1px solid black;
             }
-            .wbits{
-            grid-area: wbits;
+            .registerContainer{
+                grid-area: register;
+                width: 100%;
+                padding: 0;
+            }
+            .registerContainer p{
+                font-style: italic;
+            }
+            .register{
             width: 100%;
             padding: 0;
             display: grid;
@@ -193,7 +200,10 @@
         </section>
 
         <div class="bits" id="bitcontainer"></div>
-        <div class="wbits" id="workingContainer"></div>
+        <div class="registerContainer">
+        <p>register <span id="registerState"></span></p>
+        <div class="register" id="workingContainer"></div>
+        </div>
         <section id = "consoleContainer" class="console-full">
             <div class="output">
                 <p id="textout"></p>

@@ -90,7 +90,6 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 if(valueOrRange instanceof pointer){
 
                     var assignee = env.GetRangeFromIdent(assigneeString)
-                    console.log("assign to", valueOrRange, assignee, assigneeString)
 
                     if(assignee != undefined){
                         env.Copy(valueOrRange, assignee);
@@ -514,7 +513,7 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                 throw Error("uh?");
             }
             break
-         case Ops.ShiftRight:
+        case Ops.ShiftRight:
             if(operand instanceof pointer){
                 for(let i = operand.start; i<operand.start+operand.length-1;i++){
                     var b = env.GetBit(i+1);
@@ -544,8 +543,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
             }else if(operand instanceof bitValue){
                 operand.DeltaUnsigned(-1)
                 return operand
-            }else if(operand instanceof treeNode){
-                throw Error("uh?");
             }
             break
         case Ops.Inc:

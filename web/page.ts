@@ -4,7 +4,7 @@ import {EditorState, StateField, StateEffect, RangeSet} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
 import { Decoration, type DecorationSet } from "@codemirror/view";
-import emitter, { Environment, ProgramData } from "../interpreter/environment";
+import { Environment, ProgramData } from "../interpreter/environment";
 import type { treeNode } from "../interpreter/ast";
 
 const localStorageKey = "64BitsOrLessEditorValue"
@@ -21,6 +21,7 @@ const imageOutCTX = imageOut?.getContext("2d");
 const byteCount = document.getElementById("byteCount");
 const tokenCount = document.getElementById("tokenCount");
 const errorBox = document.getElementById("errorBox");
+const registerStateText = document.getElementById("registerState");
 
 var dirty: boolean
 const bits: HTMLDivElement[] = []
@@ -31,7 +32,8 @@ if(!starting){
 a = 200
 a = 255
 `
-    }
+}
+
 
 function loadbits(){
     if(bitContainer == null ){
@@ -152,6 +154,10 @@ function onBitChanged(bit: number, val: boolean){
   if(env.running){
     dirty = true
   }else{
+    if(bit == env.regIsPointerBit){
+      setRegisterStateChange(val)
+      return;
+    }
     var b = bit < 64 ? bits[bit] : workingBits[bit-64]
     if(b){
         b.innerHTML = val ? "1" : "0";
@@ -161,13 +167,15 @@ function onBitChanged(bit: number, val: boolean){
 }
 function onComplete(){
   if(dirty){
-    for(let i = 0;i<bits.length;i++){
+    //-1 because I happen to know that the last bit is regIsPointerBit, although that hypothetically could change.
+    for(let i = 0;i<bits.length-1;i++){
       var val = env.memory[i]
       var b = bits[i]
       if(b){
           b.innerHTML = val ? "1" : "0";
           b.classList = val ? "bit filled" : "bit empty"
       }
+      setRegisterStateChange(env.memory[env.regIsPointerBit] ? true : false)
     }
     allPixels()
     dirty = false
@@ -257,8 +265,16 @@ function onProgramDataChange(p: ProgramData){
     errorBox.style.display = "none"
   }
 }
-
-
+function setRegisterStateChange(val: boolean){
+  if(val){
+    //todo: lots of extra calculations happening here pointlessly
+    //@ts-ignore
+    registerStateText.innerText = "(pointer, ["+env.regLocPointer.AsUInt()+":"+env.regLenPointer.AsUInt()+"])"
+  }else{
+    //@ts-ignore
+    registerStateText.innerText = "(value, uint: "+env.registerVal.AsUInt()+" char: "+env.registerVal.AsChar()+")"
+  }
+}
 
 function run(){
     let doc = view.state.doc.toString();

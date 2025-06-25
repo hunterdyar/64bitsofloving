@@ -1,10 +1,9 @@
-import type { NumberLiteralType } from "typescript";
 import { bitValue, pointer, treeNode, type runtimeType } from "./ast";
 import { EvaluateNode } from "./interpreter";
 import { Parse } from "./parser";
 import { UintToBoolArray } from "./utility";
 import EventEmitter from "events"
-import { emit } from "process";
+
 
 class ProgramData{
     emitter = new EventEmitter()
@@ -53,7 +52,7 @@ class Environment{
     regLocPointer : pointer
     regLenPointer : pointer
     registerVal : bitValue 
-    registerIsPointer : boolean
+    regIsPointerBit : number
     procedures: Dict<treeNode[]>
     onComplete: (() => void)
     onchange: ((bit:number,value:boolean) => void)
@@ -62,7 +61,7 @@ class Environment{
     onOutput: ((message: string) => void)
     constructor(){
         this.emitter = new EventEmitter();
-        this.memory = new Array<boolean>(64+16)//64 bit heap, 16 bit stack.
+        this.memory = new Array<boolean>(64+16+1)//64 bit heap, 16 bit stack.
         this.displaySize = 16
         this.dispay = new Array<number>(this.displaySize*this.displaySize)
         this.output = ""
@@ -70,9 +69,9 @@ class Environment{
         this.register = new pointer(64,16,this)
         this.regLocPointer = new pointer(64,8,this)
         this.regLenPointer = new pointer(64+8,8,this)
+        this.regIsPointerBit = 64+16//last bit
         this.registerVal = new bitValue()
         this.registerVal.SetByUint(0,16)
-        this.registerIsPointer = true
         // this.programData.SetBytes(0)
         this.onchange = (a,b)=>{this.emitter.emit("onChange",a,b)}
         this.onPixel = (a,b)=>{this.emitter.emit("onPixel",a,b)}
@@ -177,23 +176,28 @@ class Environment{
         }
 
         if(item instanceof pointer){
-            this.registerIsPointer = true
+            this.SetBit(this.regIsPointerBit,true)
             let start = UintToBoolArray(item.start,8)
             for (let i = 0; i < 8; i++) {
-                this.regLocPointer.SetBit(i,start[i] ? true : false)
+                let b = start[i] ? true : false
+                this.regLocPointer.SetBit(i,b)
             }
             let len = UintToBoolArray(item.length,8)
             for (let i = 0; i < 8; i++) {
-                this.regLenPointer.SetBit(i,start[i] ? true : false)
+                this.regLenPointer.SetBit(i,len[i] ? true : false)
             }
+
+            console.assert(this.regLocPointer.AsUInt() == item.start, "reg loc pointer should match pushed pointer")
+            console.assert(this.regLenPointer.AsUInt() == item.length, "reg len pointer should match length pointer")
+
         }else if(item instanceof bitValue){
-            this.registerIsPointer = false
-            for(let i =0;i<Math.min(16,item.length);i++){
+            this.SetBit(this.regIsPointerBit,false)
+            for(let i =0;i<16;i++){
                 let k = 64+(i)
                 let b = item.GetBitSafe(i)
+                this.registerVal.val[i] = b
                 if(this.memory[k] != b){
                     this.memory[k] = b
-                    this.registerVal.val[k] = b
                     this.onchange(k,b)
                 }
             }
@@ -201,9 +205,10 @@ class Environment{
         }
     }
     pop(): runtimeType{
-        if(this.registerIsPointer){
+        if(this.memory[this.regIsPointerBit]){
             //feels likes lots of uneccesary work here 
-            return new pointer(this.regLocPointer.AsUInt(), this.regLocPointer.AsUInt(), this)
+            let p = new pointer(this.regLocPointer.AsUInt(), this.regLenPointer.AsUInt(), this)
+            return p
         }else{
             //return a bitvalue
             return this.registerVal
@@ -242,8 +247,8 @@ class Environment{
         }
         this.procedures[id] = body
     }
+
     Set(loc: pointer, val: bitValue){
-        console.log("set",loc,val);
         for(let i = 0;i<loc.length;i++){
             var bit = val.GetBit(i)
             var bitloc = (loc.start+i)%64
