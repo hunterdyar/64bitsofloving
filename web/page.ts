@@ -168,13 +168,8 @@ function onBitChanged(bit: number, val: boolean){
 function onComplete(){
   if(dirty){
     //-1 because I happen to know that the last bit is regIsPointerBit, although that hypothetically could change.
-    for(let i = 0;i<bits.length-1;i++){
-      var val = env.memory[i]
-      var b = bits[i]
-      if(b){
-          b.innerHTML = val ? "1" : "0";
-          b.classList = val ? "bit filled" : "bit empty"
-      }
+    for(let i = 0;i<env.memory.length-1;i++){
+      onBitChanged(i,env.memory[i]?true:false)
       setRegisterStateChange(env.memory[env.regIsPointerBit] ? true : false)
     }
     allPixels()
