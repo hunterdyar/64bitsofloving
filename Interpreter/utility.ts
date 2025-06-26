@@ -17,19 +17,22 @@ function GetAsFloat(source: boolean[]): number{
     return parseFloat("0b"+source.map(x=>x?"1":"0").join(''));
 }
 function UintToBoolArray(number: number, length: number): boolean[]{
-    let val = number ? [] : [false]
+    let val = number != undefined ? [] : [false]
     let b = number;
-    if(length >0){
+    if(length > 0){
+        val = []
         for(let i = 0;i<length;i++) {
             val.push((b & 1) === 1)
             b >>= 1
         }
+        console.assert(length==val.length, "UintToBoolArray didn't make array of correct length. Was given "+length);
     }else{
         while(b) {
             val.push((b & 1) === 1)
             b >>= 1
         }
     }
+    
     return val;
 }
 //utility to reverse subsection of an array

@@ -38,9 +38,8 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 yield node
                 return
             }
-            throw new Error("Unknown identifier "+node.source);
-                
-            case NodeType.ProcCall:
+            throw new Error("Unknown identifier "+node.source);              
+        case NodeType.ProcCall:
             let id = node.children[0].source.trim()
             if(id in env.procedures){
                 let body = env.procedures[id]
@@ -158,9 +157,11 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
         case NodeType.BinaryOp:
             yield* EvaluateNode(node.children[1], env)
             let left = env.pop();
+            //@ts-ignore todo: i don't think i understand this typescript error.
+            left = left.Clone();
             yield* EvaluateNode(node.children[2], env)
             let right = env.pop();
-            let binary = DoBinary(node.children[0], left, right, env);
+            let binary = DoBinary(node.children[0], right, left, env);
             env.push(binary);
             yield node
             break
@@ -363,46 +364,58 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
 }
 
 function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environment){
+    let result: runtimeType = left;
+    
     if(left == undefined){
         throw Error("uh?");
     }
     if(right == undefined){
         throw Error("uh?");
     }
+    if(left instanceof bitValue){
+        result = new bitValue()
+        result.SetByUint(0,Math.max(left.length,right.length))
+    }else if(left instanceof pointer){
+        result = left;
+    }
+    if(result == undefined){
+        throw new Error("uh oh");
+    }
     switch(op){
         case Ops.And:
             var l = Math.max(left.length, right.length)
             for(var i = 0;i<l;i++){
-                left.SetBit(i, left.GetBit(i) && right.GetBit(i))
+                result.SetBit(i, left.GetBit(i) && right.GetBit(i))
             }
-            return left;
+            return result;
         break
         case Ops.Or:
             var l = Math.max(left.length, right.length)
             for(var i = 0;i<l;i++){
-                left.SetBit(i, left.GetBit(i) || right.GetBit(i))
+                console.log("or",left.GetBit(i),right.GetBit(i), left.GetBit(i) || right.GetBit(i))
+                result.SetBit(i, left.GetBit(i) || right.GetBit(i))
             }
-            return left;
+            return result;
         break
         case Ops.Xor:
             var l = Math.max(left.length, right.length)
             for(var i = 0;i<l;i++){
-                left.SetBit(i, left.GetBit(i) !== right.GetBit(i))
+                result.SetBit(i, left.GetBit(i) !== right.GetBit(i))
             }
-            return left;
+            return result;
         break
         case Ops.Plus:
             var l = Math.max(left.length, right.length)
             var carryin = false;
             for(var i = 0;i<l;i++){
-                var lb = left.GetBit(i);
-                var rb = right.GetBit(i); 
+                var lb = left.GetBitSafe(i);
+                var rb = right.GetBitSafe(i); 
                 let suma = lb !== rb;
                 let sumb = suma !== carryin
                 carryin = lb && rb || carryin && suma;
-                left.SetBit(i, sumb)
+                result.SetBit(i, sumb)
             }
-            return left;
+            return result;
         break
         case Ops.ShiftRight:
             let timesRight = right.AsUInt()
@@ -413,6 +426,7 @@ function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environme
             for(var i = 0;i<timesRight;i++){
                 left = DoUnary(Ops.ShiftRight, left, env)
             }
+            return left;
             break
         case Ops.ShiftLeft:
             let timesLeft = right.AsUInt()
@@ -423,6 +437,7 @@ function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environme
             for(var i = 0;i<timesLeft;i++){
                 left = DoUnary(Ops.ShiftLeft, left, env)
             }
+
             break
         case Ops.CycleLeft:
             let cltimes = right.AsUInt();
@@ -482,14 +497,9 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
     switch (op){
         case Ops.Not:
             for(let i  = 0;i<operand.length;i++){
-                    operand.SetBit(i, !operand.GetBit(i));
-                }
-                return operand
-                break
-        default:
-            throw Error("unexpected op: "+op);
-            //so we got rid of shiftLeft and shiftright unary ops, but the binary implementation just calls these so im not refactoring them over yet.
-            //because i dont feel like it right now. (e.g. not convinced we wont have both when i implement grouping to disambiguate)
+                operand.SetBit(i, !operand.GetBit(i));
+            }
+            return operand
         case Ops.ShiftLeft:
             if(operand instanceof pointer){
                 for(let i = operand.start+operand.length-1; i>=operand.start+1;i--){
@@ -509,8 +519,6 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                     operand.val[0] = false
                 }
                 return operand
-            }else if(operand instanceof treeNode){
-                throw Error("uh?");
             }
             break
         case Ops.ShiftRight:
@@ -532,29 +540,18 @@ function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
                     operand.val[operand.val.length-1] = false
                 }
                 return operand
-            }else if(operand instanceof treeNode){
-                throw Error("uh?");
             }
             break
         case Ops.Dec:
-            if(operand instanceof pointer){
-                operand.DeltaUnsigned(-1);
-                return operand
-            }else if(operand instanceof bitValue){
-                operand.DeltaUnsigned(-1)
-                return operand
-            }
-            break
+            operand.DeltaUnsigned(-1);
+            return operand
         case Ops.Inc:
-            if(operand instanceof pointer){
-                operand.DeltaUnsigned(1);
-                return operand
-            }else if(operand instanceof bitValue){
-                operand.DeltaUnsigned(1)
-                return operand
-            }else if(operand instanceof treeNode){
-                throw Error("uh?");
-            }
+            operand.DeltaUnsigned(1);
+            return operand
+        default:
+            throw Error("unexpected op: "+op);
+            //so we got rid of shiftLeft and shiftright unary ops, but the binary implementation just calls these so im not refactoring them over yet.
+            //because i dont feel like it right now. (e.g. not convinced we wont have both when i implement grouping to disambiguate)
     }
                  
 }

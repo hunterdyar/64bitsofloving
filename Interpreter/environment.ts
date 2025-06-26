@@ -72,6 +72,7 @@ class Environment{
         this.regIsPointerBit = 64+16//last bit
         this.registerVal = new bitValue()
         this.registerVal.SetByUint(0,16)
+        console.log(this.registerVal);
         // this.programData.SetBytes(0)
         this.onchange = (a,b)=>{this.emitter.emit("onChange",a,b)}
         this.onPixel = (a,b)=>{this.emitter.emit("onPixel",a,b)}

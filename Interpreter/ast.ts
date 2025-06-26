@@ -128,6 +128,16 @@ class bitValue {
         //do we need to clone this? 
         return this.val
     }
+    Clone(): bitValue{
+        //todo: array copy with more efficient way.
+        var b = new bitValue();
+        b.val = new Array(this.val.length);
+        for (let i = 0; i < this.val.length; i++) {
+            //@ts-ignore
+            b.val[i] = this.val[i];
+        }
+        return b;
+    }
 }
 
 class pointer {
@@ -176,6 +186,9 @@ class pointer {
     }
     GetDataCopy():boolean[]{
         return this.env.memory.slice(this.start,this.length);
+    }
+    Clone(): pointer{
+        return new pointer(this.start,this.length, this.env);
     }
 }
 
