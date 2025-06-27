@@ -60,6 +60,11 @@ Bits {
   | ident
   | numLiteral
   | charLiteral
+  | ParenExpr
+
+  ParenExpr = 
+  "(" Expr ")"
+
     
  Assign
  	= ident assign Expr

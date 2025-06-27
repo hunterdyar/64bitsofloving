@@ -31,6 +31,9 @@ s.addOperation("toTree",{
         tokenCount++
          return new treeNode(NodeType.Assign,this, [left.toTree(), expr.toTree()])
     },
+    ParenExpr(open,expr,close){
+        return expr.toTree()
+    },
     Declare(left, dec, expr){
         tokenCount++
         return new treeNode(NodeType.Declare, this, [left.toTree(), expr.toTree()])

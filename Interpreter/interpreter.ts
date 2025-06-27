@@ -157,12 +157,17 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
         case NodeType.BinaryOp:
             yield* EvaluateNode(node.children[1], env)
             let left = env.pop();
-            //@ts-ignore todo: i don't think i understand this typescript error.
+            if(left == undefined){
+                throw new Error("undefined left value on binary operator")
+            }
             left = left.Clone();
             yield* EvaluateNode(node.children[2], env)
             let right = env.pop();
-            let binary = DoBinary(node.children[0], right, left, env);
+
+            let binary = DoBinary(node.children[0], left, right, env);
             env.push(binary);
+
+
             yield node
             break
         case NodeType.Call:
@@ -374,9 +379,11 @@ function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environme
     }
     if(left instanceof bitValue){
         result = new bitValue()
+        //todo: better/more efficient way to initialize an empty bitvalue. factory method probably.
         result.SetByUint(0,Math.max(left.length,right.length))
     }else if(left instanceof pointer){
-        result = left;
+        //uneccesary
+        //result = left.Clone();
     }
     if(result == undefined){
         throw new Error("uh oh");
@@ -486,8 +493,7 @@ function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environme
         default:
             throw new Error("binary op "+Ops[op]+ " not (yet?) supported")
     }
-    //todo: create an interface that allows pointers and values to avoid a nested nightmare of if/elses for getting/setting bits. 
-    return undefined
+    return result
 }
 
 function DoUnary(op: Ops, operand: runtimeType, env: Environment): runtimeType{
