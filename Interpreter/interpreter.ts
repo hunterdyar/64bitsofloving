@@ -378,9 +378,10 @@ function DoBinary(op: Ops, left: runtimeType, right: runtimeType, env: Environme
         throw Error("uh?");
     }
     if(left instanceof bitValue){
-        result = new bitValue()
+        throw new Error("Left side of binary operator must be a pointer. Think of it as 'binary assignmnent' like '+=', not like '+'.");
+        // result = new bitValue()
         //todo: better/more efficient way to initialize an empty bitvalue. factory method probably.
-        result.SetByUint(0,Math.max(left.length,right.length))
+        // result.SetByUint(0,Math.max(left.length,right.length))
     }else if(left instanceof pointer){
         //uneccesary
         //result = left.Clone();
