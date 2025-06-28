@@ -167,7 +167,6 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             let binary = DoBinary(node.children[0], left, right, env);
             env.push(binary);
 
-
             yield node
             break
         case NodeType.Call:
@@ -179,7 +178,12 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
                 yield* EvaluateNode(argNodes[i],env)
                 //todo: this breaks because of the lack of stack. another vote against the 16 bit constraint for the stack, since multi-arg calls feels important.
                 //and, when its calling a built-in, it really doesn't feel like it's "cheating" the conceit.
-                args.push(env.pop())
+                let x = env.pop()
+                if(x instanceof bitValue){
+                    args.push(x.Clone())
+                }else if(x instanceof pointer){
+                    args.push(x) //x.getbitvalue
+                }
             }
             DoCall(fname, args, env);
             yield node
@@ -283,7 +287,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 throw new Error("Print Char requires at least one argument");
             }
             for(let i = 0;i<args.length;i++){
-                let out = args[0]
+                let out = args[i]
                 if(out != undefined){
                     env.Print(out.AsChar())
                 }
@@ -296,6 +300,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
             if(args.length == 0){
                 throw new Error("Print Int requires at least one argument");
             }
+            
             for(let i = 0;i<args.length;i++){
                 let intout = args[i]
                 if(intout instanceof treeNode){
@@ -320,10 +325,7 @@ function DoCall(fname: string, args: runtimeType[], env: Environment){
                 throw new Error("Print Binary requires at least one argument");
             }
             for(let i = 0;i<args.length;i++){
-                let binout = args[0]
-                if(binout instanceof treeNode){
-                    throw Error("Invalid Argument.");
-                }
+                let binout = args[i]
                 if(binout instanceof pointer){
                     env.Print(binout.AsBin())
                     return;
