@@ -102,6 +102,7 @@ function challengeSelected(ev:Event | undefined){
         
     }
     localStorage.setItem(localStorageChallengeKey, select.options.selectedIndex.toString())
+    TestChallenge()
 }
 
 
