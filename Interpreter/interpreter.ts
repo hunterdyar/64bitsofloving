@@ -174,6 +174,7 @@ function* EvaluateNode(node: treeNode, env: Environment):Generator<treeNode> {
             let fname = node.children[0].source
             let args = []
             let argNodes = node.children[1]
+            console.log(argNodes)
             for(let i =0;i< argNodes.length;i++){
                 yield* EvaluateNode(argNodes[i],env)
                 //todo: this breaks because of the lack of stack. another vote against the 16 bit constraint for the stack, since multi-arg calls feels important.
