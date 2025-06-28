@@ -74,6 +74,11 @@ class bitValue {
         this.val = UintToBoolArray(value, length);
         this.length = this.val.length
     }
+    Set(value: boolean[]){
+        //todo: clone?
+        this.val = value
+        this.length = this.val.length
+    }
     AsChar(): string{
         return GetAsCharacter(this.val)
     }
@@ -189,6 +194,11 @@ class pointer {
     }
     Clone(): pointer{
         return new pointer(this.start,this.length, this.env);
+    }
+    GetBitValue() : bitValue{
+        var x = new bitValue()
+        x.Set(this.value())
+        return x;
     }
 }
 
