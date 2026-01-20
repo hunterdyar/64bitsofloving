@@ -28,7 +28,7 @@ const bits: HTMLDivElement[] = []
 const workingBits: HTMLDivElement[] = []
 
 if(!starting){
-    starting = `a = [0:8]
+    starting = `a := [0:8]
 a = 200
 a = 255
 `
