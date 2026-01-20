@@ -4,8 +4,8 @@ import {EditorState, StateField, StateEffect, RangeSet} from "@codemirror/state"
 import {EditorView, keymap, ViewPlugin, type EditorViewConfig} from "@codemirror/view"
 import {defaultKeymap, indentWithTab} from "@codemirror/commands"
 import { Decoration, type DecorationSet } from "@codemirror/view";
-import { Environment, ProgramData } from "../interpreter/environment";
-import type { treeNode } from "../interpreter/ast";
+import { Environment, ProgramData } from "../Interpreter/environment";
+import type { treeNode } from "../Interpreter/ast"
 
 const localStorageKey = "64BitsOrLessEditorValue"
 let starting = localStorage.getItem(localStorageKey);
