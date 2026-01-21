@@ -1,6 +1,7 @@
 [[challenges]]
 title = "Counting Down"
 description = "Let's manage a loop!"
+helpLink = "https://github.com/hunterdyar/64bitsofloving/wiki/Counting-Down"
 maxBytes = 35
 maxTokens = 20
 textOut = "9876543210"

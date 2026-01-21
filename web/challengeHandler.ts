@@ -1,5 +1,5 @@
 import cData from "../challenges/challenges.toml"
-import type { ProgramData } from "../interpreter/environment.ts";
+import type { ProgramData } from "../Interpreter/environment.ts";
 import {env} from "./page.ts"
 import { type Challenge } from "../challenges/challenges.ts";
 
@@ -11,6 +11,9 @@ const desc = document.getElementById("cDesc");
 const testList = document.getElementById("cTests") as HTMLUListElement
 const container = document.getElementById("cDataContainer")
 const consoleContainer = document.getElementById("consoleContainer")
+const helpWrapper = document.getElementById("helpLinkWrapper")
+const helpLink = document.getElementById("helpLink") as HTMLAnchorElement
+
 var selectedChallenge: Challenge | undefined;
 
 const bytesTestResult = testList.appendChild(document.createElement("li")) as HTMLLIElement
@@ -66,7 +69,7 @@ if(xn != 0){
 select.onchange = challengeSelected;
 
 function challengeSelected(ev:Event | undefined){
-    if(title == null || desc == null || container == null || consoleContainer == null){
+    if(title == null || desc == null || container == null || consoleContainer == null || helpWrapper == null || helpLink == null){
         console.error("bad html setup")
         return;
     }
@@ -77,6 +80,14 @@ function challengeSelected(ev:Event | undefined){
         desc.innerText = selectedChallenge.description
         container?.classList.remove("hide")
         consoleContainer.className = "console"
+
+        if(selectedChallenge.helpLink != undefined){
+            helpWrapper.className = ""
+            helpLink.href = selectedChallenge.helpLink
+        }else{
+            helpWrapper.className ="hide"
+        }
+
         //bytes
         if(selectedChallenge.maxBytes <= 0){
             bytesTestResult.className = "hide"
